@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulação de Financiamento</title>
+    <!-- Carrega Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Define a fonte Inter (Google Font) */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f7f7f7;
+        }
+
+        /* Estilos de impressão (para garantir que só a prévia seja impressa) */
+        @media print {
+            body {
+                background-color: white !important;
+                /* REDUÇÃO GERAL DO ESPAÇAMENTO NA IMPRESSÃO */
+                line-height: 1.2 !important; 
+                font-size: 10pt !important;
+            }
+            /* Esconde o cabeçalho e os botões na impressão, incluindo a div de botões de alternância */
+            .no-print, #form-container, #toggle-buttons {
+                display: none !important;
+            }
+            /* Garante que a prévia da simulação ocupe 100% da largura na impressão */
+            #preview-container {
+                margin: 0;
+                padding: 0;
+                width: 100% !important;
+            }
+            /* Remove sombras e bordas do documento impresso para economizar tinta */
+            #simulation-output > div {
+                box-shadow: none !important;
+                border: none !important;
+                padding: 0 !important;
+            }
+            /* Garante que o espaçamento entre parágrafos dentro dos blocos de dados seja reduzido */
+            #simulation-output p {
+                margin-top: 0;
+                margin-bottom: 0;
+            }
+        }
+        /* Classe base para inputs, aplicada via JS */
+        .input-base {
+            padding: 0.75rem;
+            border: 1px solid #d1d5db; /* gray-300 */
+            border-radius: 0.5rem; /* rounded-lg */
+            transition: all 0.15s ease-in-out;
+            width: 100%;
+        }
+        .input-base:focus {
+            outline: none;
+            border-color: #4f46e5; /* indigo-600 */
+            box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.5); /* ring-indigo-500 */
+        }
+    </style>
+</head>
+<body class="p-4 lg:p-8">
+
+    <!-- Cabeçalho Principal (Não aparece na impressão) -->
+    <header class="no-print mb-6 text-center">
+        <h1 class="text-4xl font-extrabold text-indigo-700">Simulador de Proposta</h1>
+        <p class="text-gray-500 mt-2">Preencha os dados e veja a simulação em tempo real.</p>
+    </header>
+
+    <!-- Container Principal do App -->
+    <div id="app" class="flex flex-col lg:flex-row gap-6 max-w-7xl mx-auto flex-wrap">
+        
+        <!-- COLUNA 1: FORMULÁRIO DE EDIÇÃO (Visível apenas no modo de edição) -->
+        <div id="form-container" class="lg:w-1/2 p-6 bg-white rounded-xl shadow-2xl w-full">
+            <h2 class="text-2xl font-bold mb-4 text-indigo-800">1. Preenchimento dos Dados</h2>
+            
+            <!-- FORMULÁRIO -->
+            <form id="simulation-form" class="space-y-6">
+
+                <!-- Dados do Cliente -->
+                <fieldset class="border border-indigo-300 p-4 rounded-lg">
+                    <legend class="text-lg font-semibold px-2 text-indigo-600">Dados do Cliente</legend>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
+                        <div class="flex flex-col">
+                            <label for="nome" class="text-sm font-medium text-gray-700 mb-1">Nome Completo</label>
+                            <input id="nome" type="text" placeholder="Valentim Longo" class="input-base" value="ex: Valentim Longo">
+                        </div>
+                        <div class="flex flex-col">
+                            <label for="cpf" class="text-sm font-medium text-gray-700 mb-1">CPF</label>
+                            <input id="cpf" type="text" placeholder="000.000.000-00" class="input-base" value="ex: 070.692.478-93">
+                        </div>
+                        <div class="flex flex-col md:col-span-2">
+                            <label for="endereco" class="text-sm font-medium text-gray-700 mb-1">Endereço (Rua, Número)</label>
+                            <input id="endereco" type="text" placeholder="RUA FIORAVANTE CHINELATTO 791" class="input-base" value="ex: RUA FIORAVANTE CHINELATTO 791">
+                        </div>
+                        <div class="flex flex-col">
+                            <label for="bairro" class="text-sm font-medium text-gray-700 mb-1">Bairro</label>
+                            <input id="bairro" type="text" placeholder="VILA DAINESE" class="input-base" value="ex: VILA DAINESE">
+                        </div>
+                        <div class="flex flex-col">
+                            <label for="cep" class="text-sm font-medium text-gray-700 mb-1">CEP</label>
+                            <input id="cep" type="text" placeholder="00000-000" class="input-base" value="ex: 13469-240">
+                        </div>
+                        <div class="flex flex-col md:col-span-2">
+                            <label for="cidadeUf" class="text-sm font-medium text-gray-700 mb-1">Cidade/UF</label>
+                            <input id="cidadeUf" type="text" placeholder="Americana/SP" class="input-base" value="ex: AMERICANA/SP">
+                        </div>
+                    </div>
+                </fieldset>
+
+                <!-- Dados do Veículo -->
+                <fieldset class="border border-indigo-300 p-4 rounded-lg">
+                    <legend class="text-lg font-semibold px-2 text-indigo-600">Dados do Veículo</legend>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
+                        <div class="flex flex-col">
+                            <label for="veiculoModelo" class="text-sm font-medium text-gray-700 mb-1">Veículo/Modelo</label>
+                            <input id="veiculoModelo" type="text" placeholder="CITROEN/BASALT FEEL TURBO AT" class="input-base" value="ex: CITROEN/BASALT FEEL TURBO AT">
+                        </div>
+                        <div class="flex flex-col">
+                            <label for="cor" class="text-sm font-medium text-gray-700 mb-1">Cor</label>
+                            <input id="cor" type="text" placeholder="BRANCO (BLANC BANQUISE)" class="input-base" value="ex: BRANCO (BLANC BANQUISE)">
+                        </div>
+                        <div class="flex flex-col">
+                            <label for="anoModelo" class="text-sm font-medium text-gray-700 mb-1">Ano/Modelo</label>
+                            <input id="anoModelo" type="text" placeholder="AAAA/AAAA (ex: 2025/2025)" class="input-base" value="ex: 2025/2025">
+                        </div>
+                        <div class="flex flex-col">
+                            <label for="especie" class="text-sm font-medium text-gray-700 mb-1">Espécie</label>
+                            <input id="especie" type="text" placeholder="Passageiro" class="input-base" value="ex: PASSAGEIRO">
+                        </div>
+                        <div class="flex flex-col">
+                            <label for="tipo" class="text-sm font-medium text-gray-700 mb-1">Tipo</label>
+                            <input id="tipo" type="text" placeholder="5 Lugares" class="input-base" value="ex: 5 LUGARES">
+                        </div>
+                        <div class="flex flex-col">
+                            <label for="direcao" class="text-sm font-medium text-gray-700 mb-1">Direção</label>
+                            <input id="direcao" type="text" placeholder="Elétrica" class="input-base" value="ex: ELÉTRICA">
+                        </div>
+                        <div class="flex flex-col">
+                            <label for="cambio" class="text-sm font-medium text-gray-700 mb-1">Câmbio</label>
+                            <input id="cambio" type="text" placeholder="Automático" class="input-base" value="ex: AUTOMÁTICO">
+                        </div>
+                    </div>
+                </fieldset>
+
+                <!-- Simulação de Financiamento -->
+                <fieldset class="border border-indigo-300 p-4 rounded-lg">
+                    <legend class="text-lg font-semibold px-2 text-indigo-600">Valores e Parcelas</legend>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
+                        <div class="flex flex-col">
+                            <label for="valorVeiculo" class="text-sm font-medium text-gray-700 mb-1">Valor do Veículo (R$)</label>
+                            <input id="valorVeiculo" type="number" step="0.01" placeholder="93441.00" class="input-base" value="0.00">
+                        </div>
+                        <div class="flex flex-col">
+                            <label for="valorEntrada" class="text-sm font-medium text-gray-700 mb-1">Valor da Entrada (R$)</label>
+                            <input id="valorEntrada" type="number" step="0.01" placeholder="85000.00" class="input-base" value="0.00">
+                        </div>
+                        
+                        <!-- CAMPO AUTOMÁTICO PARA VALOR A FINANCIAR -->
+                        <div class="flex flex-col col-span-full mt-2 p-3 bg-indigo-100 rounded-lg border-2 border-indigo-300">
+                            <label class="text-base font-bold text-indigo-800 mb-1">VALOR A FINANCIAR (Cálculo Automático):</label>
+                            <span id="valorFinanciarDisplay" class="text-2xl font-extrabold text-indigo-900">
+                                R$ 0,00
+                            </span>
+                        </div>
+                        <!-- FIM DO CAMPO DE CÁLCULO -->
+
+                        <div class="flex flex-col mt-4">
+                            <label for="qtdeParcelas" class="text-sm font-medium text-gray-700 mb-1">Quantidade de Parcelas</label>
+                            <input id="qtdeParcelas" type="number" placeholder="60" class="input-base" value="ex: 60">
+                        </div>
+                        <div class="flex flex-col mt-4">
+                            <label for="valorParcela" class="text-sm font-medium text-gray-700 mb-1">Valor da Parcela (R$)</label>
+                            <input id="valorParcela" type="number" step="0.01" placeholder="318.39" class="input-base" value="0.00">
+                        </div>
+                        
+                        <!-- NOVO CAMPO PARA DATA DE VALIDADE -->
+                        <div class="flex flex-col md:col-span-2 mt-4">
+                            <label for="dataValidade" class="text-sm font-medium text-gray-700 mb-1">Data de Validade da Proposta</label>
+                            <input id="dataValidade" type="date" class="input-base" value="ex: 20/08/2025">
+                        </div>
+                        <!-- FIM DO NOVO CAMPO -->
+                    </div>
+                </fieldset>
+            </form>
+        </div>
+
+        <!-- COLUNA 2: PRÉ-VISUALIZAÇÃO (Sempre visível, mas pode ser escondida/mostrada pelo JavaScript) -->
+        <div id="preview-container" class="lg:w-1/2 w-full">
+            <h2 class="text-2xl font-bold mb-4 text-indigo-800 no-print">2. Prévia do Documento</h2>
+            <!-- O conteúdo da simulação será injetado aqui pelo JavaScript -->
+            <div id="simulation-output" class="min-h-96">
+                <!-- Conteúdo inicial será carregado por JS -->
+            </div>
+            <!-- Botões de ação no modo prévia (Imprimir/Voltar) serão injetados aqui abaixo quando o modo for ativado -->
+        </div>
+
+        <!-- Botões de Ação (VISUALIZAR/IMPRIMIR/VOLTAR) - Movido para fora para ser independente do formulário -->
+        <div id="toggle-buttons" class="no-print mt-8 w-full">
+            <!-- Conteúdo inicial será o botão de Visualizar, injetado pelo JS -->
+        </div>
+    </div>
+
+    <script>
+        // Variáveis globais para formatação de moeda
+        const currencyFormatter = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
+        
+        // =========================================================================
+        // ** PONTO DE INSERÇÃO DOS BASE64 DAS IMAGENS **
+        // Por favor, substitua os valores a seguir pelos códigos Base64 reais dos logotipos.
+        // O valor padrão abaixo é um SVG placeholder preto e branco.
+        // =========================================================================
+        
+        const LE_MANS_LOGO_BASE64 = "data:image/png+xml;base64,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"; // Placeholder (Preto)
+        const CITROEN_LOGO_BASE64 = "data:image/png+xml;base64,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"; // Placeholder (Preto)
+        
+        // =========================================================================
+        // ** FIM DO PONTO DE INSERÇÃO **
+        // =========================================================================
+        
+        /**
+         * Formata um valor numérico para moeda BRL.
+         * @param {number} value - O valor a ser formatado.
+         * @returns {string} O valor formatado como R$.
+         */
+        const formatCurrency = (value) => {
+            // Garante que valores nulos/NaN sejam tratados como 0 para exibição
+            if (isNaN(value) || value === null) {
+                return currencyFormatter.format(0);
+            }
+            return currencyFormatter.format(value);
+        };
+        
+        /**
+         * Converte uma string de data YYYY-MM-DD para o formato DD/MM/YYYY.
+         * @param {string} dateString - A data no formato YYYY-MM-DD.
+         * @returns {string} A data no formato DD/MM/YYYY.
+         */
+        const formatDate = (dateString) => {
+            if (!dateString) return '______';
+            const [year, month, day] = dateString.split('-');
+            // Verifica se a string tem o formato esperado
+            if (year && month && day && year.length === 4) {
+                 return `${day}/${month}/${year}`;
+            }
+            return dateString; // Retorna a string original se o formato for inválido
+        };
+
+        /**
+         * Atualiza o conteúdo da prévia da simulação com base nos dados do formulário.
+         */
+        function updatePreview() {
+            // 1. Coleta dos dados
+            const data = {
+                // Dados do Cliente
+                nome: document.getElementById('nome').value || '_______________________',
+                cpf: document.getElementById('cpf').value || '_______________________',
+                endereco: document.getElementById('endereco').value || '_______________________',
+                bairro: document.getElementById('bairro').value || '_______________________',
+                cep: document.getElementById('cep').value || '_______________________',
+                cidadeUf: document.getElementById('cidadeUf').value || '_______________________',
+
+                // Dados do Veículo
+                veiculoModelo: document.getElementById('veiculoModelo').value || '_______________________',
+                cor: document.getElementById('cor').value || '_______________________',
+                anoModelo: document.getElementById('anoModelo').value || '_______________________',
+                especie: document.getElementById('especie').value || '_______________________',
+                tipo: document.getElementById('tipo').value || '_______________________',
+                direcao: document.getElementById('direcao').value || '_______________________',
+                cambio: document.getElementById('cambio').value || '_______________________',
+
+                // Simulação (coletando como números para cálculo)
+                valorVeiculo: parseFloat(document.getElementById('valorVeiculo').value) || 0,
+                valorEntrada: parseFloat(document.getElementById('valorEntrada').value) || 0,
+                qtdeParcelas: document.getElementById('qtdeParcelas').value || '_______________________',
+                valorParcela: parseFloat(document.getElementById('valorParcela').value) || 0,
+                
+                // Novo campo de validade
+                dataValidade: document.getElementById('dataValidade').value || '',
+            };
+
+            // 2. Cálculo
+            const valorFinanciar = data.valorVeiculo - data.valorEntrada;
+            
+            // 3. Atualiza o display de Valor a Financiar no FORMULÁRIO
+            document.getElementById('valorFinanciarDisplay').textContent = formatCurrency(valorFinanciar);
+            
+            // 4. Formatação de Datas
+            const today = new Date().toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+            // Usa a data inserida ou um placeholder formatado
+            const validadeStr = data.dataValidade ? formatDate(data.dataValidade) : '____________';
+            
+            // 5. Definição da Observação em negrito
+            const obsText = "OBS: APROVAÇÃO SUJEITA À ANÁLISE DA FICHA CADASTRAL.";
+            const obsComplemento = "";
+
+
+            // 6. Montagem do HTML da prévia
+            // Alterações: Redução de padding (p-4 -> p-3) e redução de espaçamento interno (space-y-2 -> space-y-1 ou remoção)
+            const previewHtml = `
+                <div class="p-8 border-4 border-indigo-100 shadow-xl bg-white min-h-full transition-shadow hover:shadow-2xl">
+                    
+                    <!-- NOVO CONTÊINER DOS LOGOTIPOS -->
+                    <div class="flex justify-between items-center mb-4"> <!-- mb-6 para mb-4 -->
+                        <!-- Logotipo Esquerdo: Le Mans (4cm de largura) -->
+                        <img src="${LE_MANS_LOGO_BASE64}" 
+                             alt="Logotipo Le Mans" 
+                             style="width: 4cm; height: auto;" 
+                             class="max-w-xs">
+                        
+                        <!-- Logotipo Direito: Citroen (4cm de largura) -->
+                        <img src="${CITROEN_LOGO_BASE64}" 
+                             alt="Logotipo Citroen" 
+                             style="width: 4cm; height: auto;" 
+                             class="max-w-xs">
+                    </div>
+                    <!-- FIM DO NOVO CONTÊINER DOS LOGOTIPOS -->
+                    
+                    <h1 class="text-2xl font-bold text-center mb-4 text-indigo-700 print:text-black">SIMULAÇÃO DE FINANCIAMENTO</h1> <!-- text-3xl para text-2xl; mb-6 para mb-4 -->
+
+                    <p class="text-right text-sm mb-6 font-medium text-gray-700 print:text-black"> <!-- mb-8 para mb-6 -->
+                        AMERICANA/SP, ${today}.
+                    </p>
+
+                    <!-- DADOS DO CLIENTE -->
+                    <div class="mb-4 p-3 border-b-2 border-indigo-200"> <!-- mb-6 para mb-4; p-4 para p-3 -->
+                        <h2 class="text-lg font-semibold mb-2 text-indigo-600 print:text-black">DADOS DO CLIENTE:</h2> <!-- text-xl para text-lg; mb-3 para mb-2 -->
+                        <div class="text-sm space-y-1 text-gray-800 print:text-black"> <!-- space-y-2 para space-y-1 -->
+                            <p><strong>NOME:</strong> ${data.nome.toUpperCase()}</p>
+                            <p><strong>CPF:</strong> ${data.cpf}</p>
+                            <p><strong>ENDEREÇO:</strong> ${data.endereco.toUpperCase()}</p>
+                            <p><strong>BAIRRO:</strong> ${data.bairro.toUpperCase()}</p>
+                            <p><strong>CEP:</strong> ${data.cep}</p>
+                            <p><strong>CIDADE/UF:</strong> ${data.cidadeUf.toUpperCase()}</p>
+                        </div>
+                    </div>
+
+                    <!-- DADOS DO VEÍCULO -->
+                    <div class="mb-4 p-3 border-b-2 border-indigo-200"> <!-- mb-6 para mb-4; p-4 para p-3 -->
+                        <h2 class="text-lg font-semibold mb-2 text-indigo-600 print:text-black">DADOS DO VEÍCULO:</h2> <!-- text-xl para text-lg; mb-3 para mb-2 -->
+                        <div class="text-sm space-y-1 text-gray-800 print:text-black"> <!-- space-y-2 para space-y-1 -->
+                            <p><strong>VEICULO/MODELO:</strong> ${data.veiculoModelo.toUpperCase()}</p>
+                            <p><strong>COR:</strong> ${data.cor.toUpperCase()}</p>
+                            <p><strong>ANO/MODELO:</strong> ${data.anoModelo}</p>
+                            <p><strong>ESPÉCIE:</strong> ${data.especie.toUpperCase()}</p>
+                            <p><strong>TIPO:</strong> ${data.tipo.toUpperCase()}</p>
+                            <p><strong>DIREÇÃO:</strong> ${data.direcao.toUpperCase()}</p>
+                            <p><strong>CÂMBIO:</strong> ${data.cambio.toUpperCase()}</p>
+                        </div>
+                    </div>
+
+                    <!-- SIMULAÇÃO DE FINANCIAMENTO -->
+                    <div class="mb-6 p-3 border-b-2 border-indigo-200 bg-indigo-50 rounded-md print:bg-white print:text-black"> <!-- mb-8 para mb-6; p-4 para p-3 -->
+                        <h2 class="text-lg font-semibold mb-2 text-indigo-600 print:text-black">SIMULAÇÃO DE FINANCIAMENTO:</h2> <!-- text-xl para text-lg; mb-3 para mb-2 -->
+                        <div class="text-sm space-y-1 font-mono text-gray-800 print:text-black"> <!-- space-y-2 para space-y-1 -->
+                            <p><strong>VALOR DO VEÍCULO:</strong> ${formatCurrency(data.valorVeiculo)}</p>
+                            <p><strong>VALOR DA ENTRADA:</strong> ${formatCurrency(data.valorEntrada)}</p>
+                            <p class="text-base font-extrabold mt-2 text-indigo-800"> <!-- text-lg para text-base; mt-4 para mt-2 -->
+                                <strong>VALOR A FINANCIAR:</strong> ${formatCurrency(valorFinanciar)}
+                            </p>
+                            <p class="mt-2"><strong>QTDE DE PARCELAS:</strong> ${data.qtdeParcelas}</p> <!-- mt-4 para mt-2 -->
+                            <p><strong>VALOR DA PARCELA:</strong> ${formatCurrency(data.valorParcela)}</p>
+                        </div>
+                    </div>
+
+                    <!-- OBSERVAÇÕES -->
+                    <div class="p-3 border-t-2 border-indigo-200 print:text-black"> <!-- p-4 para p-3 -->
+                        <p class="text-xs italic mb-0 text-gray-800"> <!-- mb-1 para mb-0 -->
+                            <strong class="text-xs">${obsText}</strong> <!-- text-sm para text-xs -->
+                            <br>
+                            ${obsComplemento}
+                        </p>
+                        <p class="text-sm font-semibold mt-1 text-indigo-600"><strong>VALIDADE:</strong> ${validadeStr}</p> <!-- mt-2 para mt-1 -->
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('simulation-output').innerHTML = previewHtml;
+        }
+
+        /**
+         * Alterna entre o modo de edição (formulário) e o modo de visualização/impressão (prévia).
+         * @param {'edit'|'preview'} mode - O modo para o qual alternar.
+         */
+        function toggleView(mode) {
+            const formContainer = document.getElementById('form-container');
+            const previewContainer = document.getElementById('preview-container');
+            const toggleButtons = document.getElementById('toggle-buttons');
+
+            if (mode === 'preview') {
+                updatePreview(); // Garante que a prévia está 100% atualizada
+                
+                // Esconde formulário, faz a prévia ocupar 100% da largura na tela grande
+                formContainer.classList.add('hidden');
+                previewContainer.classList.add('lg:w-full');
+                previewContainer.classList.remove('lg:w-1/2');
+                
+                // Atualiza botões: Voltar e Imprimir
+                toggleButtons.classList.remove('hidden');
+                toggleButtons.innerHTML = `
+                    <div class="flex flex-col lg:flex-row gap-4 justify-center">
+                        <!-- BOTÃO IMPRIMIR -->
+                        <button onclick="window.print()" class="w-full lg:w-auto px-6 py-3 bg-green-600 text-white font-semibold rounded-lg shadow-xl hover:bg-green-700 transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 flex items-center justify-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5 4v2a2 2 0 002 2h6a2 2 0 002-2V4h1a2 2 0 012 2v10a2 2 0 01-2 2H3a2 2 0 01-2-2V6a2 2 0 012-2h1zM3 16h14V9H3v7zM7 5a1 1 0 011-1h4a1 1 0 110 2H8a1 1 0 01-1-1z" clip-rule="evenodd" /></svg>
+                            Imprimir Simulação
+                        </button>
+                        <!-- BOTÃO VOLTAR PARA EDIÇÃO -->
+                        <button onclick="toggleView('edit')" class="w-full lg:w-auto px-6 py-3 bg-gray-300 text-gray-800 font-semibold rounded-lg shadow-xl hover:bg-gray-400 transition-colors focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 flex items-center justify-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd" /></svg>
+                            Voltar para Edição
+                        </button>
+                    </div>
+                `;
+            } else { // mode === 'edit'
+                // Mostra formulário, retorna prévia ao tamanho original (duas colunas)
+                formContainer.classList.remove('hidden');
+                previewContainer.classList.add('lg:w-1/2');
+                previewContainer.classList.remove('lg:w-full');
+                
+                // Retorna botões ao estado inicial: Visualizar
+                toggleButtons.classList.remove('hidden');
+                toggleButtons.innerHTML = `
+                    <div class="flex flex-col lg:flex-row gap-4 justify-center">
+                        <button onclick="toggleView('preview')" class="w-full px-6 py-3 bg-indigo-600 text-white font-semibold rounded-lg shadow-xl hover:bg-indigo-700 transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 flex items-center justify-center">
+                            Visualizar Simulação (Prévia) &rarr;
+                        </button>
+                    </div>
+                `;
+            }
+        }
+
+        /**
+         * Inicializa a aplicação: 
+         * 1. Adiciona listeners de input para atualização em tempo real.
+         * 2. Carrega a prévia inicial com os dados mockados.
+         */
+        function initApp() {
+            // Adiciona listeners para atualizar a prévia a cada alteração
+            const formInputs = document.querySelectorAll('#simulation-form input[type="text"], #simulation-form input[type="number"], #simulation-form input[type="date"]');
+            formInputs.forEach(input => {
+                input.addEventListener('input', updatePreview);
+                
+                // Aplica a classe de estilo base para todos os inputs
+                input.classList.add('input-base');
+            });
+            
+            // Define a data de validade inicial (2025-08-20, baseado no arquivo anexo)
+            const validadeInput = document.getElementById('dataValidade');
+            if (validadeInput && !validadeInput.value) {
+                // Ajusta a data para o formato YYYY-MM-DD
+                validadeInput.value = '2025-08-20'; 
+            }
+
+            // Inicia a aplicação no modo de edição (que também carrega a prévia)
+            toggleView('edit');
+        }
+
+        // Inicia a aplicação após o carregamento da página
+        window.onload = initApp;
+
+    </script>
+</body>
+</html>

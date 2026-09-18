@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visualizador de Termo de Venda de Veículo (Terceiros)</title>
+    <!-- Carregando Tailwind CSS para estilização -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- REMOVIDA A FONTE INTER -->
+    <style>
+        /* Definindo a fonte Arial e cores padrão */
+        body {
+            font-family: 'Arial', sans-serif; /* FONTE ALTERADA PARA ARIAL */
+            background-color: #f8fafc;
+        }
+        /* Estilo para a área de visualização do termo */
+        #termo-output-body {
+            white-space: pre-wrap;
+            line-height: 1.6;
+            font-size: 1.125rem; /* text-lg */
+            text-align: justify; /* CORREÇÃO: Adicionado para justificar na tela */
+        }
+        /* Estilo para garantir que o título da visualização não atrapalhe a impressão */
+        .preview-header {
+            display: none; /* Esconde o título fixo da caixa de visualização */
+        }
+        /* Estilo de rolagem personalizado */
+        .scrollable-area {
+            max-height: 85vh;
+            overflow-y: auto;
+        }
+        .scrollable-area::-webkit-scrollbar {
+            width: 8px;
+        }
+        .scrollable-area::-webkit-scrollbar-thumb {
+            background-color: #94a3b8;
+            border-radius: 10px;
+        }
+
+        /* Estilos específicos para impressão */
+        @media print {
+            body {
+                /* Remove margens do corpo na impressão */
+                margin: 0;
+                padding: 0;
+            }
+            /* Esconde tudo que não está no container do termo durante a impressão */
+            .no-print {
+                display: none !important;
+            }
+            .print-area {
+                /* Diminui a largura do texto (aumentando a margem) */
+                width: 100%;
+                margin: 0;
+                /* CORREÇÃO: Removido o padding para se ajustar às margens da impressora */
+                padding: 0; 
+                font-family: Arial, sans-serif;
+                word-wrap: break-word; /* Garante quebras de linha em palavras longas */
+                overflow-wrap: break-word; /* Propriedade moderna */
+            }
+            #termo-titulo {
+                font-size: 20px !important; /* AJUSTADO: Reduzido para 20px */
+            }
+            #termo-output-body, #termo-data, #signature-block {
+                font-size: 16px !important; /* AJUSTADO: Mantido em 16px */
+                line-height: 1.3 !important;
+            }
+            #termo-output-body {
+                white-space: pre-wrap;
+                margin-bottom: 5px !important;
+                word-wrap: break-word; 
+                overflow-wrap: break-word; 
+                text-align: justify !important; /* CORREÇÃO: Adicionado para justificar na impressão */
+            }
+            /* Garantindo que o bloco de assinatura use o espaçamento de impressão de 2 linhas */
+            #signature-block {
+                 line-height: 1.3 !important;
+                 text-align: center !important;
+                 /* Mantém o espaçamento de 2 linhas na impressão */
+                 margin-top: 30px !important; 
+                 font-family: Arial, sans-serif !important; 
+            }
+            #signature-block span {
+                font-size: 15px !important; /* AJUSTADO: Aumentado para 15px */
+            }
+            #termo-data {
+                margin-bottom: 5px !important;
+            }
+        }
+
+    </style>
+</head>
+<body class="p-4 sm:p-8">
+
+    <div class="max-w-7xl mx-auto no-print">
+        <header class="mb-6 pb-4 border-b border-blue-200">
+            <h1 class="text-3xl font-extrabold text-blue-800">Gerador de Termo de Venda (Terceiros)</h1>
+            <p class="text-gray-600 mt-1">Preencha o formulário para visualizar e gerar o termo de ciência em tempo real.</p>
+        </header>
+
+        <!-- Layout principal: Formulário e Visualização (Grid responsivo) -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+
+            <!-- 1. FORMULÁRIO DE INPUTS (Coluna Esquerda) -->
+            <div class="bg-white p-6 rounded-xl shadow-2xl scrollable-area">
+                <h2 class="text-xl font-bold text-blue-700 mb-4 border-b pb-2">Dados do Termo</h2>
+                
+                <form id="termo-form" class="space-y-6">
+
+                    <!-- SEÇÃO: Vendedor (Terceiro Proprietário) -->
+                    <fieldset class="border border-blue-300 p-4 rounded-lg">
+                        <legend class="text-lg font-semibold text-blue-600 px-2">1. Vendedor (Veículo de Troca)</legend>
+                        <div class="space-y-4 pt-2">
+                            <input type="text" id="vendedorNome" placeholder="Nome Completo" value="ex: JULIANO GODOY MILANI" class="form-input" required>
+                            <div class="flex space-x-4">
+                                <input type="text" id="vendedorCPF" placeholder="CPF" value="ex: 83949500197" class="form-input w-1/2" required>
+                                <input type="text" id="vendedorRG" placeholder="RG (Ex: 855983 SEJSP MS)" value="ex: 855983 SEJSP MS" class="form-input w-1/2" required>
+                            </div>
+                        </div>
+                    </fieldset>
+
+                    <!-- SEÇÃO: Veículo de Troca (Usado) -->
+                    <fieldset class="border border-blue-300 p-4 rounded-lg">
+                        <legend class="text-lg font-semibold text-blue-600 px-2">2. Veículo Dado na Troca</legend>
+                        <div class="space-y-4 pt-2">
+                            <div class="flex space-x-4">
+                                <input type="text" id="veiculoTrocaMarca" placeholder="Marca" value="ex: CITROEN" class="form-input w-1/2" required>
+                                <input type="text" id="veiculoTrocaModelo" placeholder="Modelo" value="ex: C3 PTECH M TEND" class="form-input w-1/2" required>
+                            </div>
+                            <div class="flex space-x-4">
+                                <input type="text" id="veiculoTrocaAnoModelo" placeholder="Ano/Modelo (Ex: 2016/2017)" value="ex: 2016/2017" class="form-input w-1/2" required>
+                                <input type="text" id="veiculoTrocaPlaca" placeholder="Placa" value="ex: FYD2G27" class="form-input w-1/2" required>
+                            </div>
+                            <input type="text" id="veiculoTrocaChassi" placeholder="Chassi" value="ex: 935SLHMZ1HB511481" class="form-input" required>
+                        </div>
+                    </fieldset>
+
+                    <!-- SEÇÃO: Comprador (Novo Proprietário) -->
+                    <fieldset class="border border-blue-300 p-4 rounded-lg">
+                        <legend class="text-lg font-semibold text-blue-600 px-2">3. Adquirente do Veículo Novo</legend>
+                        <div class="space-y-4 pt-2">
+                            <input type="text" id="compradorNome" placeholder="Nome Completo do Adquirente" value="ex: ANDREZA DE PAULA OLIVEIRA MILANI" class="form-input" required>
+                            <div class="flex space-x-4">
+                                <input type="text" id="compradorCPF" placeholder="CPF do Adquirente" value="ex: 79659055153" class="form-input w-1/2" required>
+                                <input type="text" id="compradorRG" placeholder="RG do Adquirente" value="ex: 891513 SEJUSP MS" class="form-input w-1/2" required>
+                            </div>
+                        </div>
+                    </fieldset>
+
+                    <!-- SEÇÃO: Veículo Novo (Adquirido) -->
+                    <fieldset class="border border-blue-300 p-4 rounded-lg">
+                        <legend class="text-lg font-semibold text-blue-600 px-2">4. Veículo Adquirido (Novo)</legend>
+                        <div class="space-y-4 pt-2">
+                            <div class="flex space-x-4">
+                                <input type="text" id="veiculoNovoMarca" placeholder="Marca" value="ex: CITROEN" class="form-input w-1/2" required>
+                                <input type="text" id="veiculoNovoModelo" placeholder="Modelo" value="ex: C3 LIVE PACK 1.0 MT" class="form-input w-1/2" required>
+                            </div>
+                            <div class="flex space-x-4">
+                                <input type="text" id="veiculoNovoAnoModelo" placeholder="Ano/Modelo (Ex: 2025/2025)" value="ex: 2025/2025" class="form-input w-1/2" required>
+                                <input type="text" id="veiculoNovoPlaca" placeholder="Placa (Ex: ZERO KM)" value="ex: ZERO KM" class="form-input w-1/2" required>
+                            </div>
+                            <div class="flex space-x-4">
+                                <input type="text" id="veiculoNovoChassi" placeholder="Chassi" value="ex: 935CEFCB3SB559934" class="form-input w-2/3" required>
+                                <input type="text" id="veiculoNovoCor" placeholder="Cor (Ex: BRANCA...)" value="ex: BRANCA (BLANC BANQUISE)" class="form-input w-1/3" required>
+                            </div>
+                        </div>
+                    </fieldset>
+                    
+                    <!-- SEÇÃO: Empresa e Data -->
+                    <fieldset class="border border-blue-300 p-4 rounded-lg">
+                        <legend class="text-lg font-semibold text-blue-600 px-2">5. Empresa e Data de Emissão</legend>
+                        <div class="space-y-4 pt-2">
+                            <input type="text" id="empresaNome" placeholder="Nome da Empresa (Revendedora)" value="LE MANS CAMPINAS VEICULOS E PECAS LTDA" class="form-input" required>
+                            <input type="text" id="empresaCNPJ" placeholder="CNPJ da Empresa" value="04.427.821/0004-02" class="form-input" required>
+                            <input type="text" id="empresaEndereco" placeholder="Endereço (Ex: Av. Nossa Senhora de Fátima, 1400, Vila Israel)" value="Avenida Nossa Senhora de Fátima, 1400, Vila Israel" class="form-input" required>
+                            <input type="text" id="empresaCidadeUF" placeholder="Cidade/UF (Ex: Americana/SP)" value="Americana/SP" class="form-input" required>
+                            
+                            <div class="flex space-x-4">
+                                <input type="number" id="dataEmissaoDia" placeholder="Dia" class="form-input w-1/3" required>
+                                <input type="text" id="dataEmissaoMes" placeholder="Mês (Ex: JULHO)" class="form-input w-1/3" required>
+                                <input type="number" id="dataEmissaoAno" placeholder="Ano" class="form-input w-1/3" required>
+                            </div>
+                        </div>
+                    </fieldset>
+
+                </form>
+            </div>
+
+            <!-- 2. VISUALIZAÇÃO DO TERMO E AÇÕES (Coluna Direita) -->
+            <div class="space-y-4 no-print">
+                <div class="flex space-x-4">
+                    <button id="copy-button" class="flex-1 bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-4 rounded-xl shadow-lg transition duration-200">
+                        Copiar Texto do Termo
+                    </button>
+                    <button id="print-button" class="flex-1 bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-3 px-4 rounded-xl shadow-lg transition duration-200">
+                        Imprimir Termo
+                    </button>
+                </div>
+                
+                <!-- A div de botões de IA e a seção de output de IA foram removidas -->
+
+                <div id="message-box" class="hidden p-3 bg-blue-100 text-blue-800 rounded-lg font-medium"></div>
+
+                <div class="bg-white p-6 rounded-xl shadow-2xl border-4 border-blue-500 scrollable-area">
+                    <!-- O título foi removido daqui e será injetado no JS para permitir formatação -->
+                    <h2 class="text-xl font-bold text-gray-800 mb-4 pb-2 preview-header">Visualização Final</h2>
+                    <div id="termo-container">
+                        <!-- O conteúdo do termo será injetado aqui -->
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    
+    <!-- 
+        O conteúdo do termo será duplicado aqui, invisível, 
+        para que o CSS @media print possa estilizá-lo corretamente 
+    -->
+    <div id="print-content" class="print-area" style="display: none;"></div>
+
+
+    <!-- Lógica JavaScript principal -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const form = document.getElementById('termo-form');
+            const output = document.getElementById('termo-container'); 
+            const printContent = document.getElementById('print-content'); 
+            const copyButton = document.getElementById('copy-button');
+            const printButton = document.getElementById('print-button');
+            // Elementos de IA removidos: summarizeButton, emailButton, aiOutputSection, aiOutput, messageBox
+            const messageBox = document.getElementById('message-box'); // Mantido para feedback de cópia
+            
+            // Variáveis da API Gemini e lógica de chamada removidas
+
+            // Mapeamento de meses para extenso
+            const nomesMeses = [
+                'JANEIRO', 'FEVEREIRO', 'MARÇO', 'ABRIL', 'MAIO', 'JUNHO',
+                'JULHO', 'AGOSTO', 'SETEMBRO', 'OUTUBRO', 'NOVEMBRO', 'DEZEMBRO'
+            ];
+
+            // FUNÇÃO PARA INICIALIZAR A DATA ATUAL
+            function initializeDate() {
+                const now = new Date();
+                const dia = now.getDate().toString();
+                const mes = nomesMeses[now.getMonth()];
+                const ano = now.getFullYear().toString();
+
+                document.getElementById('dataEmissaoDia').value = dia;
+                document.getElementById('dataEmissaoMes').value = mes;
+                document.getElementById('dataEmissaoAno').value = ano;
+            }
+            
+            // Inicializa a data antes de configurar os listeners
+            initializeDate();
+
+
+            // Estilo padrão para inputs
+            const inputStyle = "w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 shadow-inner";
+            document.querySelectorAll('.form-input').forEach(input => {
+                input.className = inputStyle;
+                // Adiciona listener de input para atualização em tempo real
+                input.addEventListener('input', updateTermo);
+            });
+            
+            // Função auxiliar para obter os dados do formulário como objeto (sem formatação HTML)
+            function getFormData(uppercase = true) {
+                const data = {};
+                const ids = [
+                    'vendedorNome', 'vendedorCPF', 'vendedorRG', 'veiculoTrocaMarca', 
+                    'veiculoTrocaModelo', 'veiculoTrocaAnoModelo', 'veiculoTrocaPlaca', 
+                    'veiculoTrocaChassi', 'compradorNome', 'compradorCPF', 'compradorRG',
+                    'veiculoNovoMarca', 'veiculoNovoModelo', 'veiculoNovoAnoModelo', 
+                    'veiculoNovoPlaca', 'veiculoNovoChassi', 'veiculoNovoCor', 
+                    'empresaNome', 'empresaCNPJ', 'empresaEndereco', 'empresaCidadeUF',
+                    'dataEmissaoDia', 'dataEmissaoMes', 'dataEmissaoAno'
+                ];
+
+                ids.forEach(id => {
+                    let value = document.getElementById(id).value || `[${id.toUpperCase()}]`;
+                    if (uppercase) {
+                        value = value.toUpperCase();
+                    }
+                    data[id] = value;
+                });
+                
+                // Campos derivados
+                data.localEmissao = data.empresaCidadeUF.split('/')[0];
+                
+                return data;
+            }
+
+            // Função que reconstrói o termo em texto puro (usado para Cópia)
+            function getFullTermoText() {
+                const data = getFormData(true);
+                
+                const titleText = "TERMO DE CIÊNCIA E CONCORDÂNCIA DE VENDA DE VEÍCULO";
+                
+                const termoBody = 
+`Eu, ${data.vendedorNome}, portador(a) do CPF: ${data.vendedorCPF}, RG: ${data.vendedorRG}, declaro, para os devidos fins de direito, que tenho plena ciência de que o veículo de minha propriedade, Marca: ${data.veiculoTrocaMarca}, Modelo: ${data.veiculoTrocaModelo}, Ano/Modelo: ${data.veiculoTrocaAnoModelo}, Placa: ${data.veiculoTrocaPlaca}, Chassi: ${data.veiculoTrocaChassi}, dado na troca, adquirindo o veículo da Marca: ${data.veiculoNovoMarca}, Modelo: ${data.veiculoNovoModelo}, Ano/Modelo: ${data.veiculoNovoAnoModelo}, Placa: ${data.veiculoNovoPlaca}, Chassi: ${data.veiculoNovoChassi}, Cor: ${data.veiculoNovoCor}, em favor de ${data.compradorNome}, portador(a) do CPF: ${data.compradorCPF}, RG: ${data.compradorRG}, tem minha total concordância com o referido negócio e com a entrega de meu veículo.
+
+Declaro ainda, neste ato, que referido veículo de minha propriedade que é dado como parte de pagamento, neste negócio, está livre e desembaraçado de quaisquer ônus, e que me responsabilizo por eventual problema, constrição, ônus, multas, gravame, e dívida incidentes sobre o referido veículo no período que fui proprietário(a), até a data da transferência de propriedade.
+
+Sendo assim, nada tendo a reclamar em face de referida transferência do veículo de minha propriedade em favor da empresa: ${data.empresaNome}, com CNPJ nº: ${data.empresaCNPJ}, localizada na ${data.empresaEndereco}, na cidade de ${data.empresaCidadeUF}.
+`;
+                const dataEmissao = `${data.localEmissao}, ${data.dataEmissaoDia} de ${data.dataEmissaoMes} de ${data.dataEmissaoAno}.`;
+                
+                const signatureBlock = `
+____________________________________
+CIENTE: ${data.vendedorNome}
+CPF: ${data.vendedorCPF}
+(RECONHECER FIRMA POR AUTENTICIDADE EM CARTÓRIO)
+                `;
+                
+                return `${titleText}\n\n${termoBody}\n${dataEmissao}\n\n\n${signatureBlock}`.trim();
+            }
+
+            // Função principal que constrói e atualiza o termo (com formatação HTML)
+            function updateTermo() {
+                // 1. Coleta e formata TODOS os dados para MAIÚSCULAS e NEGRITO (para visualização)
+                const rawData = getFormData(true); // Dados em MAIÚSCULAS
+                
+                // Mapeia os dados brutos para strings HTML com negrito
+                const data = Object.keys(rawData).reduce((acc, key) => {
+                    acc[key] = `<b>${rawData[key]}</b>`;
+                    return acc;
+                }, {});
+
+
+                // Remove o parágrafo vazio final do template anterior e ajusta a linha da data
+                const termoBody = `
+Eu, ${data.vendedorNome}, portador(a) do CPF: ${data.vendedorCPF}, RG: ${data.vendedorRG}, declaro, para os devidos fins de direito, que tenho plena ciência de que o veículo de minha propriedade, Marca: ${data.veiculoTrocaMarca}, Modelo: ${data.veiculoTrocaModelo}, Ano/Modelo: ${data.veiculoTrocaAnoModelo}, Placa: ${data.veiculoTrocaPlaca}, Chassi: ${data.veiculoTrocaChassi}, dado na troca, adquirindo o veículo da Marca: ${data.veiculoNovoMarca}, Modelo: ${data.veiculoNovoModelo}, Ano/Modelo: ${data.veiculoNovoAnoModelo}, Placa: ${data.veiculoNovoPlaca}, Chassi: ${data.veiculoNovoChassi}, Cor: ${data.veiculoNovoCor}, em favor de ${data.compradorNome}, portador(a) do CPF: ${data.compradorCPF}, RG: ${data.compradorRG}, tem minha total concordância com o referido negócio e com a entrega de meu veículo.
+
+Declaro ainda, neste ato, que referido veículo de minha propriedade que é dado como parte de pagamento, neste negócio, está livre e desembaraçado de quaisquer ônus, e que me responsabilizo por eventual problema, constrição, ônus, multas, gravame, e dívida incidentes sobre o referido veículo no período que fui proprietário(a), até a data da transferência de propriedade.
+
+Sendo assim, nada tendo a reclamar em face de referida transferência do veículo de minha propriedade em favor da empresa: ${data.empresaNome}, com CNPJ nº: ${data.empresaCNPJ}, localizada na ${data.empresaEndereco}, na cidade de ${data.empresaCidadeUF}.
+`;
+                
+                // O template é gerado com os estilos de tela
+                const termoHTML = `
+<div style="text-align: center; margin-bottom: 20px;">
+    <p id="termo-titulo" style="white-space: pre-wrap; line-height: 1.6; font-size: 1.875rem;"> 
+        <b><u>TERMO DE CIÊNCIA E CONCORDÂNCIA DE VENDA DE VEÍCULO</u></b>
+    </p>
+</div>
+<pre id="termo-output-body" style="white-space: pre-wrap; line-height: 1.6; font-size: 1.125rem; margin-bottom: 5px;"> 
+${termoBody}
+</pre>
+<p id="termo-data" style="text-align: left; font-size: 1.125rem; line-height: 1.0; margin: 0 0 5px 0;"> 
+    ${data.localEmissao}, ${data.dataEmissaoDia} de ${data.dataEmissaoMes} de ${data.dataEmissaoAno}.
+</p>
+<!-- REMOVIDO PADDING INLINE PARA DEIXAR APENAS AS MARGENS DE IMPRESSÃO -->
+<div id="signature-block" style="text-align: center; font-size: 1.125rem; line-height: 1.3; font-family: 'Arial', sans-serif;">
+    
+    <!-- INSERÇÃO DE <br><br> PARA FORÇAR 2 LINHAS DE ESPAÇO NA VISUALIZAÇÃO EM TELA -->
+    <br><br> 
+    
+    <div style="text-align: center;">
+        ____________________________________<br>
+        CIENTE: <b>${rawData.vendedorNome}</b><br>
+        CPF: <b>${rawData.vendedorCPF}</b><br>
+        <span style="font-size: 1rem;">(RECONHECER FIRMA POR AUTENTICIDADE EM CARTÓRIO)</span> 
+    </div>
+</div>
+`;
+                // 1. Renderiza na tela
+                output.innerHTML = termoHTML.trim();
+
+                // 2. Prepara o conteúdo para impressão (aplicando as classes e estilos print específicos)
+                printContent.innerHTML = termoHTML.trim();
+            }
+
+            // Função para exibir mensagem
+            function showMessage(text, isError = false) {
+                messageBox.textContent = text;
+                messageBox.classList.remove('hidden');
+                messageBox.classList.toggle('bg-red-100', isError);
+                messageBox.classList.toggle('text-red-800', isError);
+                messageBox.classList.toggle('bg-green-100', !isError);
+                messageBox.classList.toggle('text-green-800', !isError);
+
+                setTimeout(() => {
+                    messageBox.classList.add('hidden');
+                }, 3000);
+            }
+            
+            // As funções displayAIOutput e callGemini foram removidas
+
+            // --- Ações de IA removidas ---
+
+
+            // Ação de Copiar (Não alterada)
+            copyButton.addEventListener('click', () => {
+                // Ao copiar, pegamos o texto puro do título, corpo e assinatura
+                const titleText = document.getElementById('termo-titulo')?.textContent.trim() || '';
+                
+                // Extraímos o texto com MAIÚSCULAS, mas sem as tags <b> para a cópia (o navegador já fez o toUpperCase)
+                const bodyElement = document.getElementById('termo-output-body');
+                let bodyText = bodyElement.textContent.trim();
+
+                const dataEmissao = document.getElementById('termo-data')?.textContent.trim() || '';
+
+                // Reconstroi o bloco de assinatura para a cópia (sem tags HTML)
+                const data = getFormData(true); // Pega dados brutos MAIÚSCULAS
+
+                
+                // Reconstruindo o texto com o CIENTE: centralizado e espaçamento. Usando apenas 1 \n para tentar reduzir o espaço
+                const rawSignature = `
+
+____________________________________
+CIENTE: ${data.vendedorNome}
+CPF: ${data.vendedorCPF}
+(RECONHECER FIRMA POR AUTENTICIDADE EM CARTÓRIO)
+                `.trim().replace(/\t/g, ''); // Remove tabs
+
+                const textToCopy = titleText + '\n\n' + bodyText + '\n' + dataEmissao + '\n' + rawSignature;
+
+                // Usando a API Clipboard (moderna) ou fallback
+                if (navigator.clipboard) {
+                    navigator.clipboard.writeText(textToCopy).then(() => {
+                        showMessage('Texto do termo copiado para a área de transferência!');
+                    }).catch(err => {
+                        console.error('Erro ao copiar usando navigator.clipboard:', err);
+                        fallbackCopy(textToCopy);
+                    });
+                } else {
+                    fallbackCopy(textToCopy);
+                }
+            });
+
+            // Fallback para cópia
+            function fallbackCopy(text) {
+                try {
+                    const textarea = document.createElement('textarea');
+                    textarea.value = text;
+                    textarea.style.position = 'fixed'; // Evita a rolagem
+                    textarea.style.opacity = '0';
+                    document.body.appendChild(textarea);
+                    textarea.focus();
+                    textarea.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(textarea);
+                    showMessage('Texto do termo copiado com sucesso! (Fallback)');
+                } catch (err) {
+                    console.error('Erro ao usar document.execCommand:', err);
+                    showMessage('Falha ao copiar o texto. Tente selecionar e copiar manualmente.', true);
+                }
+            }
+
+            // Ação de Imprimir: Agora copia o HTML do #print-content
+            printButton.addEventListener('click', () => {
+                const printWindow = window.open('', '', 'height=600,width=800');
+                
+                // Inclui a estilização e o conteúdo do #print-content
+                const printHtml = `
+                    <html>
+                    <head>
+                        <title>Termo de Venda para Impressão</title>
+                        <style>
+                            /* Estilos de impressão repetidos aqui para garantir que carreguem */
+                            body { margin: 0; padding: 0; }
+                            .print-area {
+                                width: 100%;
+                                margin: 0;
+                                padding: 0; /* CORREÇÃO: Removido o padding para se ajustar às margens da impressora */
+                                font-family: Arial, sans-serif;
+                                word-wrap: break-word; 
+                                overflow-wrap: break-word; 
+                            }
+                            #termo-titulo {
+                                font-size: 20px !important; /* AJUSTADO: Reduzido para 20px */
+                                line-height: 1.5 !important;
+                                margin-bottom: 20px !important;
+                            }
+                            #termo-output-body, #termo-data, #signature-block {
+                                font-size: 16px !important; /* AJUSTADO: Aumentado para 16px */
+                                line-height: 1.3 !important;
+                                font-family: Arial, sans-serif !important;
+                            }
+                            #termo-output-body {
+                                white-space: pre-wrap;
+                                margin-bottom: 5px !important;
+                                word-wrap: break-word; 
+                                overflow-wrap: break-word; 
+                                text-align: justify !important; /* CORREÇÃO: Adicionado para justificar */
+                            }
+                            #signature-block {
+                                line-height: 1.3 !important;
+                                text-align: center !important;
+                                /* Espaçamento de 2 linhas na impressão */
+                                margin-top: 30px !important; 
+                            }
+                             #signature-block span {
+                                font-size: 15px !important; /* AJUSTADO: Aumentado para 15px */
+                            }
+                            /* Garantir que todos os <b> funcionem na impressão */
+                            b { font-weight: bold; }
+                        </style>
+                    </head>
+                    <body>
+                        <div class="print-area">
+                            ${printContent.innerHTML}
+                        </div>
+                    </body>
+                    </html>
+                `;
+
+                printWindow.document.write(printHtml);
+                printWindow.document.close();
+                printWindow.focus();
+                
+                // Força o navegador a renderizar o conteúdo antes de imprimir
+                setTimeout(() => {
+                    printWindow.print();
+                    printWindow.close();
+                }, 500); 
+            });
+
+            // Inicializa a visualização com os dados de exemplo
+            updateTermo();
+        });
+    </script>
+</body>
+</html>
