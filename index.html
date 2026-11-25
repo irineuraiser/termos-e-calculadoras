@@ -15,7 +15,7 @@
         body {
             background-color: #f4f6f9;
             color: #333;
-            padding: 30px 15px;
+            padding: 25px 15px;
             display: flex;
             justify-content: center;
         }
@@ -26,15 +26,15 @@
             background: #ffffff;
             border-radius: 8px;
             box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-            padding: 30px;
+            padding: 24px 28px;
         }
 
         h1 {
-            font-size: 22px;
+            font-size: 20px;
             font-weight: 700;
             color: #1a1a1a;
-            margin-bottom: 20px;
-            padding-bottom: 12px;
+            margin-bottom: 16px;
+            padding-bottom: 10px;
             border-bottom: 2px solid #e0e0e0;
             text-transform: uppercase;
             letter-spacing: 0.5px;
@@ -43,13 +43,13 @@
         .tabs {
             display: flex;
             gap: 10px;
-            margin-bottom: 16px;
+            margin-bottom: 10px;
             border-bottom: 1px solid #e0e0e0;
-            padding-bottom: 14px;
+            padding-bottom: 12px;
         }
 
         .tab-btn {
-            padding: 10px 20px;
+            padding: 8px 18px;
             border: 1px solid #d0d7de;
             background-color: #f8f9fa;
             color: #2c3e50;
@@ -75,7 +75,7 @@
 
         .badge {
             background-color: rgba(0, 0, 0, 0.12);
-            padding: 2px 8px;
+            padding: 1px 7px;
             border-radius: 12px;
             font-size: 12px;
         }
@@ -92,7 +92,7 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 12px 16px;
+            padding: 6px 10px;
             border-bottom: 1px solid #f0f0f0;
             transition: background 0.15s ease;
         }
@@ -105,38 +105,14 @@
             background-color: #f8f9fa;
         }
 
-        .file-info {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding-right: 15px;
-        }
-
-        .ext-tag {
-            font-size: 11px;
-            font-weight: 700;
-            padding: 2px 6px;
-            border-radius: 4px;
-            text-transform: uppercase;
-            flex-shrink: 0;
-        }
-
-        .ext-html {
-            background-color: #e6f0ff;
-            color: #0056b3;
-        }
-
-        .ext-pdf {
-            background-color: #fdecea;
-            color: #c0392b;
-        }
-
         .file-name {
-            font-size: 15px;
+            font-size: 14.5px;
             color: #2c3e50;
             font-weight: 500;
             text-decoration: none;
             word-break: break-word;
+            padding-right: 15px;
+            line-height: 1.3;
         }
 
         .file-item:hover .file-name {
@@ -146,11 +122,11 @@
         .btn-open {
             display: inline-flex;
             align-items: center;
-            padding: 6px 14px;
+            padding: 4px 12px;
             background-color: #0066cc;
             color: #ffffff;
             text-decoration: none;
-            font-size: 13px;
+            font-size: 12.5px;
             font-weight: 600;
             border-radius: 4px;
             white-space: nowrap;
@@ -162,7 +138,7 @@
         }
 
         .status-msg {
-            padding: 20px;
+            padding: 16px;
             color: #666;
             font-size: 14px;
             text-align: center;
@@ -234,17 +210,10 @@
                 const li = document.createElement('li');
                 li.className = 'file-item';
 
-                const ehPdf = file.name.toLowerCase().endsWith('.pdf');
-                const tagClass = ehPdf ? 'ext-pdf' : 'ext-html';
-                const tagTexto = ehPdf ? 'PDF' : 'HTML';
-
                 const caminhoArquivo = `${encodeURIComponent(pastaAtual)}/${encodeURIComponent(file.name)}`;
 
                 li.innerHTML = `
-                    <div class="file-info">
-                        <span class="ext-tag ${tagClass}">${tagTexto}</span>
-                        <a href="${caminhoArquivo}" target="_blank" class="file-name">${file.name}</a>
-                    </div>
+                    <a href="${caminhoArquivo}" target="_blank" class="file-name">${file.name}</a>
                     <a href="${caminhoArquivo}" target="_blank" class="btn-open">Abrir</a>
                 `;
 
