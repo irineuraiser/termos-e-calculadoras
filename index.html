@@ -91,6 +91,13 @@
         .btn-open:hover {
             background-color: #004999;
         }
+
+        .status-msg {
+            padding: 16px;
+            color: #666;
+            font-size: 14px;
+            text-align: center;
+        }
     </style>
 </head>
 <body>
@@ -99,49 +106,69 @@
         <h1>TERMOS E CALCULADORAS</h1>
 
         <ul class="file-list" id="fileList">
-            <!-- Lista gerada via Script -->
+            <li class="status-msg">Carregando arquivos...</li>
         </ul>
     </div>
 
     <script>
-        // Lista com os nomes exatos dos arquivos
-        const files = [
-            { name: "Autorização entrega veículos a Terceiros.html" },
-            { name: "Calculadora DESDOBRAMENTOS Citroen e Peugeot v.030926.html" },
-            { name: "Calculadora FINANCIAMENTOS Le Mans v.110826.html" },
-            { name: "Cortesia Comercial Revisão - Citroen Le Mans.html" },
-            { name: "Declaração-de-Residência Detran-SP (anexar conta consumo).pdf" },
-            { name: "Informações da Negociação Dr Fernando Victoria.pdf" },
-            { name: "Nome Cliente Entrega Show-Room Parabéns.html" },
-            { name: "Orçamento de Peças e Serviços.html" },
-            { name: "PCD_Anexo II v.201126.html" },
-            { name: "PCD_Avaliação de Semi-Novo v.201126.html" },
-            { name: "PCD_Simulação de Financiamento v.201126.html" },
-            { name: "Pedido Firme Pag4 em BRANCO.pdf" },
-            { name: "Tabela Acessórios Aircross.pdf" },
-            { name: "Tabela Acessórios Basalt.pdf" },
-            { name: "Tabela Acessórios C3.pdf" },
-            { name: "Tabela Estoque Peças de Revisão.pdf" }, 
-            { name: "Tabela Pneus.pdf" },
-            { name: "Tabela Revisão Programada CITROEN.pdf" },
-            { name: "Termo Ciência Venda Usado (terceiros) v.281125.html" },
-            { name: "Termo Quitação Seguradora em BRANCO.pdf" },
-            { name: "Termo Responsabilidade Usado (Multas) v.011125.html" }
-        ];
+        const GITHUB_USER = "irineuraiser";
+        const GITHUB_REPO = "termos-e-calculadoras";
+        const PASTA_ALVO  = "";
 
         const listContainer = document.getElementById('fileList');
 
-        files.forEach(file => {
-            const li = document.createElement('li');
-            li.className = 'file-item';
+        async function carregarArquivos() {
+            const apiUrl = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/${PASTA_ALVO}`;
 
-            li.innerHTML = `
-                <a href="${encodeURIComponent(file.name)}" target="_blank" class="file-name">${file.name}</a>
-                <a href="${encodeURIComponent(file.name)}" target="_blank" class="btn-open">Abrir</a>
-            `;
+            try {
+                const response = await fetch(apiUrl);
 
-            listContainer.appendChild(li);
-        });
+                if (!response.ok) {
+                    throw new Error(`Erro ao consultar GitHub (Status ${response.status}). Verifique se o repositório está público.`);
+                }
+
+                const itens = await response.json();
+
+                const arquivosFiltrados = itens
+                    .filter(item => {
+                        if (item.type !== 'file') return false;
+                        const nomeMin = item.name.toLowerCase();
+                        const ehHtmlOuPdf = nomeMin.endsWith('.html') || nomeMin.endsWith('.pdf');
+                        const naoEhIndex = nomeMin !== 'index.html';
+                        return ehHtmlOuPdf && naoEhIndex;
+                    })
+                    .sort((a, b) => a.name.localeCompare(b.name, 'pt-BR'));
+
+                listContainer.innerHTML = '';
+
+                if (arquivosFiltrados.length === 0) {
+                    listContainer.innerHTML = '<li class="status-msg">Nenhum arquivo HTML ou PDF encontrado.</li>';
+                    return;
+                }
+
+                arquivosFiltrados.forEach(file => {
+                    const li = document.createElement('li');
+                    li.className = 'file-item';
+
+                    const caminhoArquivo = PASTA_ALVO 
+                        ? `${PASTA_ALVO}/${encodeURIComponent(file.name)}`
+                        : encodeURIComponent(file.name);
+
+                    li.innerHTML = `
+                        <a href="${caminhoArquivo}" target="_blank" class="file-name">${file.name}</a>
+                        <a href="${caminhoArquivo}" target="_blank" class="btn-open">Abrir</a>
+                    `;
+
+                    listContainer.appendChild(li);
+                });
+
+            } catch (erro) {
+                console.error(erro);
+                listContainer.innerHTML = `<li class="status-msg" style="color: #c0392b;">${erro.message}</li>`;
+            }
+        }
+
+        carregarArquivos();
     </script>
 
 </body>
