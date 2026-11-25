@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="h-full">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Termo de Responsabilidade</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: sans-serif;
+        }
+
+        /* Estilos de Impressão */
+        @media print {
+
+            /* Adicionado para logos */
+            .logo-print {
+                width: 4cm !important;
+                height: auto !important;
+                display: block !important; /* Garante visibilidade */
+            }
+
+            /* Esconde o formulário e o botão de impressão */
+            #input-form,
+            #print-button-container {
+                display: none !important;
+            }
+
+            /* Garante que o documento ocupe toda a área de impressão */
+            body {
+                margin: 0;
+                padding: 0;
+                background-color: #fff;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            #document-preview-container {
+                width: 100% !important;
+                height: 100% !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                box-shadow: none !important;
+                border: none !important;
+                position: absolute;
+                top: 0;
+                left: 0;
+            }
+
+            .document-content {
+                /* Zera o padding para usar toda a área da página */
+                padding: 0 !important;
+                line-height: 1.3;
+                font-family: 'Times New Roman', Times, serif;
+                color: #000;
+            }
+
+            h1,
+            h2 {
+                color: #000 !important;
+            }
+
+            /* Remove a borda da tabela na impressão */
+            table,
+            th,
+            td {
+                border: none !important;
+            }
+
+            /* Garante que os placeholders sejam preenchidos em negrito e maiúsculo na impressão */
+            .data-placeholder {
+                font-weight: bold !important;
+                text-transform: uppercase !important;
+                color: #000 !important;
+                background-color: transparent !important;
+            }
+
+            /* Diminui a fonte do parágrafo longo para 9pt na impressão */
+            #parágrafo-juridico {
+                font-size: 9pt !important;
+            }
+        }
+
+        /* Estilos dos Placeholders (Simplificado) */
+        .data-placeholder {
+            font-weight: 500;
+            /* Semi-negrito na tela */
+            padding: 2px 4px;
+            border-radius: 4px;
+            min-height: 20px;
+            display: inline-block;
+            line-height: 1.2;
+        }
+
+        .data-placeholder:empty::before {
+            content: attr(data-placeholder);
+            /* Texto do placeholder */
+            color: #9ca3af;
+            /* Cinza */
+            font-weight: 400;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-200 h-full p-4 md:p-8 flex items-center justify-center">
+
+    <div class="flex flex-col lg:flex-row w-full max-w-7xl h-full max-h-[90vh] bg-white rounded-lg shadow-2xl overflow-hidden">
+
+        <!-- Coluna do Formulário (Esquerda) -->
+        <aside id="input-form"
+            class="w-full lg:w-1/3 xl:w-1/4 bg-gray-50 border-r border-gray-200 p-6 overflow-y-auto">
+            <h2 class="text-xl font-bold text-gray-800 mb-6 border-b pb-2">Preencher Dados</h2>
+
+            <!-- Dados do Cliente -->
+            <section class="mb-6">
+                <h3 class="text-lg font-semibold text-gray-700 mb-4">Cliente (Vendedor)</h3>
+                <div class="space-y-4">
+                    <div>
+                        <label for="cliente_nome" class="block text-sm font-medium text-gray-600 mb-1">Nome
+                            Completo</label>
+                        <input type="text" id="cliente_nome" data-target="cliente_nome"
+                            class="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div>
+                        <label for="cliente_nacionalidade"
+                            class="block text-sm font-medium text-gray-600 mb-1">Nacionalidade</label>
+                        <input type="text" id="cliente_nacionalidade" data-target="cliente_nacionalidade"
+                            class="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div>
+                        <label for="cliente_cpf_cnpj"
+                            class="block text-sm font-medium text-gray-600 mb-1">CPF/CNPJ</label>
+                        <input type="text" id="cliente_cpf_cnpj" data-target="cliente_cpf_cnpj"
+                            class="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div>
+                        <label for="cliente_endereco"
+                            class="block text-sm font-medium text-gray-600 mb-1">Endereço</label>
+                        <input type="text" id="cliente_endereco" data-target="cliente_endereco"
+                            class="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div>
+                        <label for="cliente_bairro"
+                            class="block text-sm font-medium text-gray-600 mb-1">Bairro</label>
+                        <input type="text" id="cliente_bairro" data-target="cliente_bairro"
+                            class="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div>
+                        <label for="cliente_cidade"
+                            class="block text-sm font-medium text-gray-600 mb-1">Cidade</label>
+                        <input type="text" id="cliente_cidade" data-target="cliente_cidade"
+                            class="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div>
+                        <label for="cliente_uf" class="block text-sm font-medium text-gray-600 mb-1">UF</label>
+                        <input type="text" id="cliente_uf" data-target="cliente_uf" maxlength="2"
+                            class="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div>
+                        <label for="cliente_cep" class="block text-sm font-medium text-gray-600 mb-1">CEP</label>
+                        <input type="text" id="cliente_cep" data-target="cliente_cep"
+                            class="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                </div>
+            </section>
+
+            <!-- Dados do Veículo -->
+            <section>
+                <h3 class="text-lg font-semibold text-gray-700 mb-4">Veículo</h3>
+                <div class="space-y-4">
+                    <div>
+                        <label for="veiculo_marca"
+                            class="block text-sm font-medium text-gray-600 mb-1">Marca</label>
+                        <input type="text" id="veiculo_marca" data-target="veiculo_marca"
+                            class="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div>
+                        <label for="veiculo_modelo"
+                            class="block text-sm font-medium text-gray-600 mb-1">Modelo</label>
+                        <input type="text" id="veiculo_modelo" data-target="veiculo_modelo"
+                            class="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div>
+                        <label for="veiculo_ano_modelo"
+                            class="block text-sm font-medium text-gray-600 mb-1">Ano/Modelo</label>
+                        <input type="text" id="veiculo_ano_modelo" data-target="veiculo_ano_modelo"
+                            class="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                            placeholder="AAAA/AAAA">
+                    </div>
+                    <div>
+                        <label for="veiculo_renavam" class="block text-sm font-medium text-gray-600 mb-1">RENAVAM</label>
+                        <input type="text" id="veiculo_renavam" data-target="veiculo_renavam"
+                            class="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div>
+                        <label for="veiculo_chassi"
+                            class="block text-sm font-medium text-gray-600 mb-1">Chassi</label>
+                        <input type="text" id="veiculo_chassi" data-target="veiculo_chassi"
+                            class="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div>
+                        <label for="veiculo_placa"
+                            class="block text-sm font-medium text-gray-600 mb-1">Placa</label>
+                        <input type="text" id="veiculo_placa" data-target="veiculo_placa"
+                            class="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div>
+                        <label for="veiculo_municipio"
+                            class="block text-sm font-medium text-gray-600 mb-1">Município</label>
+                        <input type="text" id="veiculo_municipio" data-target="veiculo_municipio"
+                            class="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div>
+                        <label for="veiculo_estado"
+                            class="block text-sm font-medium text-gray-600 mb-1">Estado (UF)</label>
+                        <input type="text" id="veiculo_estado" data-target="veiculo_estado" maxlength="2"
+                            class="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                </div>
+            </section>
+        </aside>
+
+        <!-- Coluna do Documento (Direita) -->
+        <main id="document-preview-container"
+            class="w-full lg:w-2/3 xl:w-3/4 bg-white p-8 md:p-12 overflow-y-auto relative">
+
+            <!-- Botão de Impressão -->
+            <div id="print-button-container" class="w-full text-center mb-8">
+                <button onclick="triggerPrint()"
+                    class="w-full md:w-auto bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg shadow-md transition-all duration-300 ease-in-out transform hover:-translate-y-1">
+                    Clique para Pré-visualizar Impressão
+                </button>
+            </div>
+
+            <!-- Conteúdo do Documento -->
+            <div class="document-content max-w-2xl mx-auto bg-white text-gray-900">
+
+                <!-- INSERÇÃO DOS LOGOTIPOS -->
+                <!-- Alterado: mb-6 para mb-4 -->
+                <div class="w-full flex justify-between items-start mb-4">
+                    
+                    <!-- 
+                      LOGO ESQUERDO (LE MANS) 
+                      
+                      1. APAGUE o <div>...</div> abaixo (o quadrado tracejado).
+                      2. No lugar dele, COLE a tag <img> exatamente assim:
+                      
+                      <img src="data:image/png;base64,COLE_SEU_CODIGO_BASE64_AQUI" alt="Le Mans Logo" style="width: 2cm; height: auto;" class="logo-print">
+                      
+                      (Se sua imagem for JPEG, mude "image/png" para "image/jpeg")
+                    -->
+                    <img src="data:image/png;base64,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" alt="Le Mans Logo" style="width: 5cm; height: auto;" class="logo-print">
+
+                    <!-- 
+                      LOGO DIREITO (CITROEN) 
+                      
+                      1. APAGUE o <div>...</div> abaixo (o quadrado tracejado).
+                      2. No lugar dele, COLE a tag <img> exatamente assim:
+
+                      <img src="data:image/png;base64,COLE_SEU_CODIGO_BASE64_AQUI" alt="Citroen Logo" style="width: 2cm; height: auto;" class="logo-print">
+                      
+                      (Se sua imagem for JPEG, mude "image/png" para "image/jpeg")
+                    -->
+                    <img src="data:image/png;base64,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" alt="Citroen Logo" style="width: 5cm; height: auto;" class="logo-print">
+                </div>
+                <!-- FIM DA INSERÇÃO DOS LOGOTIPOS -->
+
+
+                <!-- Alterado: mb-8 para mb-4 -->
+                <h1 class="text-2xl font-bold text-center mb-4 uppercase">Termo de Responsabilidade</h1>
+
+                <!-- Parágrafo de Identificação -->
+                <!-- Alterado: leading-relaxed para leading-normal, mb-6 para mb-3 -->
+                <p class="text-justify leading-normal mb-3">
+                    Eu,
+                    <span id="doc_cliente_nome" class="data-placeholder" data-placeholder="NOME COMPLETO"></span>,
+                    nacionalidade:
+                    <span id="doc_cliente_nacionalidade" class="data-placeholder"
+                        data-placeholder="NACIONALIDADE"></span>,
+                    CPF/CNPJ:
+                    <span id="doc_cliente_cpf_cnpj" class="data-placeholder" data-placeholder="000.000.000-00"></span>,
+                    domiciliado e residente:
+                    <span id="doc_cliente_endereco" class="data-placeholder"
+                        data-placeholder="RUA, Nº - COMPLEMENTO"></span>
+                    – Bairro:
+                    <span id="doc_cliente_bairro" class="data-placeholder" data-placeholder="BAIRRO"></span>,
+                    Cidade:
+                    <span id="doc_cliente_cidade" class="data-placeholder" data-placeholder="CIDADE"></span>
+                    – UF:
+                    <span id="doc_cliente_uf" class="data-placeholder" data-placeholder="UF"></span>,
+                    CEP:
+                    <span id="doc_cliente_cep" class="data-placeholder" data-placeholder="00000-000"></span>
+                </p>
+
+                <!-- Parágrafo de Declaração de Propriedade -->
+                <!-- Alterado: leading-relaxed para leading-normal, mb-6 para mb-3 -->
+                <p class="text-justify leading-normal mb-3">
+                    Declaro sob as penas do art. 299 (falsidade ideológica) do Código Penal, ser da minha única e
+                    exclusiva propriedade, o veículo abaixo discriminado:
+                </p>
+
+                <!-- Tabela de Dados do Veículo (Compactada) -->
+                <!-- Alterado: mb-6 para mb-3 -->
+                <div class="border border-gray-300 rounded-lg overflow-hidden mb-3">
+                    <table class="w-full text-sm">
+                        <tbody class="divide-y divide-gray-200">
+                            <!-- Linha 1 -->
+                            <tr class="divide-x divide-gray-200">
+                                <td class="p-2">
+                                    <strong class="block text-gray-500 text-xs">Marca</strong>
+                                    <span id="doc_veiculo_marca" class="data-placeholder"
+                                        data-placeholder="MARCA"></span>
+                                </td>
+                                <td class="p-2">
+                                    <strong class="block text-gray-500 text-xs">Modelo</strong>
+                                    <span id="doc_veiculo_modelo" class="data-placeholder"
+                                        data-placeholder="MODELO"></span>
+                                </td>
+                                <td class="p-2">
+                                    <strong class="block text-gray-500 text-xs">Ano/Modelo</strong>
+                                    <span id="doc_veiculo_ano_modelo" class="data-placeholder"
+                                        data-placeholder="AAAA/AAAA"></span>
+                                </td>
+                                <td class="p-2">
+                                    <strong class="block text-gray-500 text-xs">RENAVAM</strong>
+                                    <span id="doc_veiculo_renavam" class="data-placeholder" data-placeholder="Nº RENAVAM"></span>
+                                </td>
+                            </tr>
+                            <!-- Linha 2 -->
+                            <tr class="divide-x divide-gray-200 bg-gray-50">
+                                <td class="p-2">
+                                    <strong class="block text-gray-500 text-xs">Chassi</strong>
+                                    <span id="doc_veiculo_chassi" class="data-placeholder"
+                                        data-placeholder="Nº CHASSI"></span>
+                                </td>
+                                <td class="p-2">
+                                    <strong class="block text-gray-500 text-xs">Placa</strong>
+                                    <span id="doc_veiculo_placa" class="data-placeholder"
+                                        data-placeholder="AAA-0A00"></span>
+                                </td>
+                                <td class="p-2">
+                                    <strong class="block text-gray-500 text-xs">Município</strong>
+                                    <span id="doc_veiculo_municipio" class="data-placeholder"
+                                        data-placeholder="MUNICÍPIO"></span>
+                                </td>
+                                <td class="p-2">
+                                    <strong class="block text-gray-500 text-xs">Estado</strong>
+                                    <span id="doc_veiculo_estado" class="data-placeholder" data-placeholder="UF"></span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+
+                <!-- Parágrafo Jurídico Principal -->
+                <!-- Alterado: leading-relaxed para leading-normal, mb-6 para mb-3 -->
+                <p class="text-justify leading-normal mb-3 text-xs" id="paragrafo-juridico">
+                    Sob as penas do mesmo artigo, declaro para os devidos fins e efeitos, que o veículo de minha
+                    propriedade e acima descrito está livre e desembaraçado de todos e quaisquer ônus, judiciais ou
+                    extrajudiciais. Declaro ainda que serão de minha inteira responsabilidade quaisquer multas e
+                    obrigações resultantes de infrações, acidentes de trânsito ou fiscais, que forem efetuadas até a
+                    data de assinatura do presente termo, mesmo que ainda não constantes dos registros do DETRAN -
+                    Departamento Nacional de Trânsito, e/ou outros órgãos oficiais de trânsito, e que tenham sido
+                    incorridos em data anterior á assinatura do presente termo, e quando tratar-se de veículo importado,
+                    por eventual direito de regresso, se sobre o mesmo recair qualquer ônus ou dívida que possa
+                    inviabilizar a sua transferência ao adquirente. Além disso, declaro expressamente que o veículo em
+                    questão não é objeto de perda total, não tendo se envolvido em qualquer tipo de sinistro que possa
+                    dar causa ou ensejo a esse evento. Assumo ainda, inteira responsabilidade pelo pagamento do ônus
+                    acima, me comprometendo a honrá-lo no prazo máximo de 10 (dez) dias, a contar da data em que me for
+                    apresentado, sob pena de pagar não só os juros mora de lei, como também multa contratual de 10% (dez
+                    por cento) e honorários advocatícios de 20% (vinte por cento) sobre os valores cobrados. Fica claro
+                    que havendo necessidade de cobrança em decorrência de quaisquer danos ocasionados por informação
+                    omitida, autorizo neste ato e por este instrumento promover a cobrança através de instituição
+                    financeira mediante a emissão de boleto bancário contra a minha pessoa. Por outro lado, se a
+                    cobrança ocorrer pela via judicial, fica estabelecido que a dívida resultante da requerida cobrança é
+                    considerada dívida líquida e certa para fins legais. O presente termo é firmado por minha livre e
+                    espontânea vontade.
+                </p>
+
+                <!-- Data e Local (Manual) -->
+                <!-- Alterado: mt-12 para mt-6, mb-16 para mb-8 -->
+                <div class="mt-6 mb-8">
+                    <p>Local e Data: __________________________________________________</p>
+                </div>
+
+                <!-- Assinatura -->
+                <!-- Alterado: mb-8 para mb-4 -->
+                <div class="mb-4">
+                    <p class="text-center">_________________________________________</p>
+                    <p class="text-center font-semibold">
+                        Assinatura: <span id="doc_assinatura_nome" class="data-placeholder"
+                            data-placeholder="NOME DO VENDEDOR"></span>
+                    </p>
+                    <p class="text-center text-sm italic mt-1">(Reconhecer firma por autenticidade em cartório)</p>
+                </div>
+
+                <!-- Dados de Entrega (Manual) -->
+                <!-- Alterado: mt-8 para mt-4 -->
+                <div class="border-t border-gray-300 pt-4 mt-4 text-sm text-gray-700">
+                    <p>
+                        Entrega definitiva na concessionária: Data ____/____/________&nbsp; Hora _____:_____&nbsp; Km
+                        __________
+                    </p>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Função para acionar a impressão
+        function triggerPrint() {
+            window.print();
+        }
+
+        // Função para atualizar o documento com os dados do formulário
+        function updateDocument(inputId, targetId) {
+            const inputElement = document.getElementById(inputId);
+            const targetElement = document.getElementById(targetId);
+
+            if (inputElement && targetElement) {
+                // Converte para maiúsculo
+                const value = inputElement.value.toUpperCase();
+                targetElement.textContent = value;
+            }
+        }
+
+        // Preenche os dados do documento quando a página carrega
+        window.onload = function () {
+            // Seleciona todos os inputs que têm o atributo 'data-target'
+            const inputs = document.querySelectorAll('#input-form input[data-target]');
+
+            inputs.forEach(input => {
+                const targetId = `doc_${input.getAttribute('data-target')}`;
+
+                // Adiciona o listener de 'input' (digitação em tempo real)
+                input.addEventListener('input', () => {
+                    updateDocument(input.id, targetId);
+
+                    // Caso especial: Preencher o nome na assinatura
+                    if (input.id === 'cliente_nome') {
+                        updateDocument(input.id, 'doc_assinatura_nome');
+                    }
+                });
+
+                // Atualiza o documento com os valores iniciais (que estarão vazios)
+                updateDocument(input.id, targetId);
+                if (input.id === 'cliente_nome') {
+                    updateDocument(input.id, 'doc_assinatura_nome');
+                }
+            });
+        };
+    </script>
+
+</body>
+
+</html>
+

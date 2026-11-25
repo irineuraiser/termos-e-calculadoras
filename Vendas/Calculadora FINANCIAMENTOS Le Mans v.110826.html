@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulador de Financiamento</title>
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <!-- Google Fonts: Montserrat para fontes mais encorpadas e clean -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        /* --- Estilos Gerais e de Layout (Clean & Laranja Escuro) --- */
+        :root {
+            --primary-color: #b33900; /* Laranja Escuro / Ferrugem (Destaques) */
+            --secondary-color: #e65c00; /* Laranja Complementar (Interações) */
+            --bg-color: #f0f4f8;
+            --card-bg: #ffffff;
+            --text-color: #222222;
+            --border-radius: 12px;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif; /* Fonte moderna e encorpada */
+            /* Fundo Laranja Escuro (Gradiente) */
+            background: linear-gradient(135deg, #cc4400, #ff7b00); 
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            color: var(--text-color);
+        }
+
+        .container {
+            background: var(--card-bg);
+            padding: 40px;
+            border-radius: var(--border-radius);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.25); /* Sombra mais forte para destacar do fundo */
+            width: 100%;
+            max-width: 650px;
+            transition: all 0.3s ease;
+        }
+
+        h1 {
+            text-align: center;
+            color: var(--primary-color);
+            margin-bottom: 5px;
+            font-size: 1.9rem;
+            font-weight: 800; /* Fonte bem grossa para o título */
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #555;
+            font-size: 0.95rem;
+            margin-bottom: 30px;
+            font-weight: 600; /* Subtítulo legível e firme */
+        }
+
+        /* --- Estilos dos Campos de Entrada (Clean) --- */
+        .input-group {
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 700;
+            color: #333;
+            font-size: 0.95rem;
+        }
+
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-wrapper i {
+            position: absolute;
+            left: 15px;
+            color: var(--secondary-color);
+            font-size: 18px;
+            pointer-events: none;
+        }
+
+        .input-wrapper input {
+            width: 100%;
+            padding: 14px 14px 14px 45px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1.05rem;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 600; /* Valores nos inputs bem visíveis */
+            color: #111;
+            transition: border-color 0.3s, box-shadow 0.3s;
+            background-color: #fcfcfc;
+        }
+
+        .input-wrapper input:focus {
+            border-color: var(--secondary-color);
+            outline: none;
+            background-color: #fff;
+            box-shadow: 0 0 0 4px rgba(230, 92, 0, 0.15); /* Foco na cor laranja */
+        }
+
+        .entry-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 500px) {
+            .entry-grid {
+                grid-template-columns: 1fr;
+                gap: 0;
+            }
+        }
+
+        /* --- Estilos dos Resultados --- */
+        .resultado {
+            margin-top: 25px;
+            padding-top: 20px;
+            border-top: 2px solid #eee;
+            display: none; 
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        .resultado.visible {
+            display: block;
+        }
+
+        .resultado h2 {
+            color: var(--primary-color);
+            text-align: center;
+            margin-bottom: 15px;
+            font-size: 1.5em;
+            font-weight: 800;
+        }
+
+        .resultado p {
+            margin: 8px 0;
+            color: #333;
+            font-size: 1rem;
+            font-weight: 500;
+        }
+
+        .resultado p strong {
+            font-weight: 700;
+            color: #111;
+        }
+
+        /* Tabela Estilo Clean e Encorpado */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            border-radius: 8px;
+            overflow: hidden;
+            border: none;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+
+        th {
+            background: var(--primary-color); 
+            color: #fff;
+            padding: 14px 12px;
+            text-transform: uppercase;
+            font-weight: 800;
+            font-size: 0.9rem;
+            letter-spacing: 0.5px;
+        }
+
+        td {
+            padding: 14px 12px;
+            text-align: center;
+            border-bottom: 1px solid #eee;
+            color: inherit;
+            font-weight: 600; /* Valores numéricos bem destacados */
+        }
+
+        tr:nth-child(even) { background-color: #fafafa; }
+        tr:nth-child(odd) { background-color: #ffffff; }
+        tr:hover { background-color: #fff2ea; /* Hover em um laranja clarinho */ }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Simulador de Financiamento</h1>
+        <!-- Atualizada a versão e validade -->
+        <p class="subtitle">Versão.110826 - Validade Agosto/2026</p>
+
+        <!-- Valor do Veículo -->
+        <div class="input-group">
+            <label for="valorVeiculo">Valor do Veículo (R$)</label>
+            <div class="input-wrapper">
+                <i class="fa-solid fa-car"></i>
+                <input type="number" id="valorVeiculo" placeholder="0,00" min="0" step="100">
+            </div>
+        </div>
+
+        <!-- Grid de Entrada (R$ e %) -->
+        <div class="entry-grid">
+            <div class="input-group">
+                <label for="entradaValor">Entrada (R$)</label>
+                <div class="input-wrapper">
+                    <i class="fa-solid fa-wallet"></i>
+                    <input type="number" id="entradaValor" placeholder="0,00" min="0">
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label for="entradaPorcentagem">Entrada (%)</label>
+                <div class="input-wrapper">
+                    <i class="fa-solid fa-percent"></i>
+                    <input type="number" id="entradaPorcentagem" placeholder="0" min="0" max="100" step="1">
+                </div>
+            </div>
+        </div>
+
+        <!-- Campo TC -->
+        <div class="input-group">
+            <label for="valorTC">Valor da TC (R$)</label>
+            <div class="input-wrapper">
+                <i class="fa-solid fa-file-invoice-dollar"></i>
+                <input type="number" id="valorTC" value="1900.00" step="10">
+            </div>
+        </div>
+
+        <!-- Área de Resultados (Estrutura Mantida) -->
+        <div id="resultado" class="resultado">
+            <h2>Resultado da Simulação</h2>
+            <div id="detalhesSimulacao"></div>
+            <div id="tabelaCalculo"></div>
+        </div>
+    </div>
+
+    <script>
+        // Lógica de cálculo, coeficientes e taxas mantidos integralmente
+        const tabelasFinanciamento = {
+            '0-9.99': {
+                nome: 'Simulação de 0% a 9.99% de Entrada',
+                dados: { 
+                    12: { coef: 0.09755, taxa: 2.51 }, 
+                    24: { coef: 0.05432, taxa: 2.24 }, 
+                    36: { coef: 0.04001, taxa: 2.12 }, 
+                    48: { coef: 0.03298, taxa: 2.06 }, 
+                    60: { coef: 0.02887, taxa: 2.01 } 
+                }
+            },
+            '10-19.99': {
+                nome: 'Simulação de 10% a 19.99% de Entrada',
+                dados: { 
+                    12: { coef: 0.09695, taxa: 2.41 }, 
+                    24: { coef: 0.05371, taxa: 2.14 }, 
+                    36: { coef: 0.03935, taxa: 2.02 }, 
+                    48: { coef: 0.03231, taxa: 1.96 }, 
+                    60: { coef: 0.02816, taxa: 1.91 } 
+                }
+            },
+            '20+': {
+                nome: 'Simulação de 20% ou mais de Entrada',
+                dados: { 
+                    12: { coef: 0.09635, taxa: 2.31 }, 
+                    24: { coef: 0.05309, taxa: 2.04 }, 
+                    36: { coef: 0.03871, taxa: 1.92 }, 
+                    48: { coef: 0.03163, taxa: 1.85 }, 
+                    60: { coef: 0.02746, taxa: 1.81 } 
+                }
+            }
+        };
+
+        // Elementos do DOM
+        const elValorVeiculo = document.getElementById('valorVeiculo');
+        const elEntradaValor = document.getElementById('entradaValor');
+        const elEntradaPorcentagem = document.getElementById('entradaPorcentagem');
+        const elValorTC = document.getElementById('valorTC');
+        
+        const elResultado = document.getElementById('resultado');
+        const elDetalhesSimulacao = document.getElementById('detalhesSimulacao');
+        const elTabelaCalculo = document.getElementById('tabelaCalculo');
+
+        function formatarMoeda(valor) {
+            return `R$ ${valor.toFixed(2).replace('.', ',').replace(/(\d)(?=(\d{3})+\,)/g, '$1.')}`;
+        }
+
+        // Função principal de cálculo
+        function calcularFinanciamento() {
+            const valorVeiculo = parseFloat(elValorVeiculo.value);
+            const valorEntrada = parseFloat(elEntradaValor.value);
+            const valorTC = parseFloat(elValorTC.value);
+            
+            // Validações
+            if (!valorVeiculo || isNaN(valorVeiculo) || isNaN(valorEntrada) || isNaN(valorTC)) {
+                elResultado.classList.remove('visible');
+                return;
+            }
+
+            if (valorEntrada > valorVeiculo) {
+                elResultado.classList.remove('visible');
+                return;
+            }
+
+            const percentualEntrada = valorEntrada / valorVeiculo;
+            const valorFinanciado = valorVeiculo - valorEntrada;
+
+            // Determina a tabela
+            let tabela;
+            if (percentualEntrada >= 0.20) {
+                tabela = tabelasFinanciamento['20+'];
+            } else if (percentualEntrada >= 0.10) {
+                tabela = tabelasFinanciamento['10-19.99'];
+            } else {
+                tabela = tabelasFinanciamento['0-9.99'];
+            }
+
+            // Geração dos Detalhes
+            let detalhesHtml = `
+                <p><strong>Tabela Utilizada:</strong> ${tabela.nome}</p>
+                <p><strong>Valor do Veículo:</strong> ${formatarMoeda(valorVeiculo)}</p>
+                <p><strong>Valor da Entrada:</strong> ${formatarMoeda(valorEntrada)} (${(percentualEntrada * 100).toFixed(2)}%)</p>
+                <p><strong>Valor Financiado:</strong> ${formatarMoeda(valorFinanciado)}</p>
+                <p><strong>Valor da TC:</strong> ${formatarMoeda(valorTC)}</p>
+                <p><strong>Base de Cálculo (Financiado + TC):</strong> ${formatarMoeda(valorFinanciado + valorTC)}</p>
+            `;
+            elDetalhesSimulacao.innerHTML = detalhesHtml;
+
+            // Geração da Tabela (incluindo Coeficiente e Taxa)
+            let htmlTabela = '<table><thead><tr><th>Prazo (meses)</th><th>Coeficiente</th><th>Taxa (a.m.)</th><th>Parcela (R$)</th></tr></thead><tbody>';
+            for (const prazo in tabela.dados) {
+                const coeficiente = tabela.dados[prazo].coef;
+                const taxa = tabela.dados[prazo].taxa;
+                
+                // Cálculo: (Valor Financiado + TC) * Coeficiente
+                const baseCalculo = valorFinanciado + valorTC;
+                const parcela = baseCalculo * coeficiente;
+                
+                htmlTabela += `<tr>
+                                  <td><strong>${prazo}x</strong></td>
+                                  <td style="font-size: 0.85em; color: #555; font-weight: 500;">${coeficiente}</td>
+                                  <td>${taxa.toFixed(2).replace('.', ',')}%</td>
+                                  <td><strong>${formatarMoeda(parcela)}</strong></td>
+                               </tr>`;
+            }
+            htmlTabela += '</tbody></table>';
+
+            elTabelaCalculo.innerHTML = htmlTabela;
+            elResultado.classList.add('visible');
+        }
+
+        // Event Listeners para Atualização Automática
+
+        // 1. Mudança no Valor do Veículo
+        elValorVeiculo.addEventListener('input', () => {
+            const vv = parseFloat(elValorVeiculo.value);
+            const perc = parseFloat(elEntradaPorcentagem.value);
+
+            if (vv && !isNaN(perc)) {
+                const novoValorEntrada = vv * (perc / 100);
+                elEntradaValor.value = novoValorEntrada.toFixed(2);
+            }
+            calcularFinanciamento();
+        });
+
+        // 2. Mudança no Valor da Entrada (R$)
+        elEntradaValor.addEventListener('input', () => {
+            const vv = parseFloat(elValorVeiculo.value);
+            const ve = parseFloat(elEntradaValor.value);
+
+            if (vv && !isNaN(ve)) {
+                const novaPorcentagem = (ve / vv) * 100;
+                elEntradaPorcentagem.value = novaPorcentagem.toFixed(2); 
+            }
+            calcularFinanciamento();
+        });
+
+        // 3. Mudança na Porcentagem da Entrada (%)
+        elEntradaPorcentagem.addEventListener('input', () => {
+            const vv = parseFloat(elValorVeiculo.value);
+            const perc = parseFloat(elEntradaPorcentagem.value);
+
+            if (vv && !isNaN(perc)) {
+                const novoValorEntrada = vv * (perc / 100);
+                elEntradaValor.value = novoValorEntrada.toFixed(2);
+            }
+            calcularFinanciamento();
+        });
+
+        // 4. Mudança na TC
+        elValorTC.addEventListener('input', calcularFinanciamento);
+
+    </script>
+</body>
+</html>

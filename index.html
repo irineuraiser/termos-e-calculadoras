@@ -22,7 +22,7 @@
 
         .container {
             width: 100%;
-            max-width: 800px;
+            max-width: 820px;
             background: #ffffff;
             border-radius: 8px;
             box-shadow: 0 4px 12px rgba(0,0,0,0.08);
@@ -33,11 +33,55 @@
             font-size: 22px;
             font-weight: 700;
             color: #1a1a1a;
-            margin-bottom: 25px;
+            margin-bottom: 20px;
             padding-bottom: 12px;
             border-bottom: 2px solid #e0e0e0;
             text-transform: uppercase;
             letter-spacing: 0.5px;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 16px;
+            border-bottom: 1px solid #e0e0e0;
+            padding-bottom: 14px;
+        }
+
+        .tab-btn {
+            padding: 10px 20px;
+            border: 1px solid #d0d7de;
+            background-color: #f8f9fa;
+            color: #2c3e50;
+            font-size: 14px;
+            font-weight: 600;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tab-btn:hover {
+            background-color: #eef2f6;
+        }
+
+        .tab-btn.active {
+            background-color: #0066cc;
+            color: #ffffff;
+            border-color: #0066cc;
+        }
+
+        .badge {
+            background-color: rgba(0, 0, 0, 0.12);
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+        }
+
+        .tab-btn.active .badge {
+            background-color: rgba(255, 255, 255, 0.25);
         }
 
         .file-list {
@@ -61,13 +105,38 @@
             background-color: #f8f9fa;
         }
 
+        .file-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding-right: 15px;
+        }
+
+        .ext-tag {
+            font-size: 11px;
+            font-weight: 700;
+            padding: 2px 6px;
+            border-radius: 4px;
+            text-transform: uppercase;
+            flex-shrink: 0;
+        }
+
+        .ext-html {
+            background-color: #e6f0ff;
+            color: #0056b3;
+        }
+
+        .ext-pdf {
+            background-color: #fdecea;
+            color: #c0392b;
+        }
+
         .file-name {
             font-size: 15px;
             color: #2c3e50;
             font-weight: 500;
             text-decoration: none;
             word-break: break-word;
-            padding-right: 15px;
         }
 
         .file-item:hover .file-name {
@@ -93,7 +162,7 @@
         }
 
         .status-msg {
-            padding: 16px;
+            padding: 20px;
             color: #666;
             font-size: 14px;
             text-align: center;
@@ -105,6 +174,15 @@
     <div class="container">
         <h1>TERMOS E CALCULADORAS</h1>
 
+        <div class="tabs">
+            <button class="tab-btn active" data-pasta="Vendas">
+                Vendas <span class="badge" id="count-Vendas">0</span>
+            </button>
+            <button class="tab-btn" data-pasta="Pós-Vendas">
+                Pós-Vendas <span class="badge" id="count-Pós-Vendas">0</span>
+            </button>
+        </div>
+
         <ul class="file-list" id="fileList">
             <li class="status-msg">Carregando arquivos...</li>
         </ul>
@@ -113,62 +191,93 @@
     <script>
         const GITHUB_USER = "irineuraiser";
         const GITHUB_REPO = "termos-e-calculadoras";
-        const PASTA_ALVO  = "";
+        const PASTAS = ["Vendas", "Pós-Vendas"];
+
+        let pastaAtual = "Vendas";
+        const dadosPastas = {
+            "Vendas": [],
+            "Pós-Vendas": []
+        };
 
         const listContainer = document.getElementById('fileList');
+        const tabButtons = document.querySelectorAll('.tab-btn');
 
-        async function carregarArquivos() {
-            const apiUrl = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/${PASTA_ALVO}`;
+        async function buscarPasta(nomePasta) {
+            const url = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/${encodeURIComponent(nomePasta)}`;
+            const response = await fetch(url);
 
-            try {
-                const response = await fetch(apiUrl);
+            if (!response.ok) {
+                if (response.status === 404) return [];
+                throw new Error(`Erro ao acessar a pasta "${nomePasta}" (Status ${response.status}).`);
+            }
 
-                if (!response.ok) {
-                    throw new Error(`Erro ao consultar GitHub (Status ${response.status}). Verifique se o repositório está público.`);
-                }
+            const itens = await response.json();
+            return itens
+                .filter(item => {
+                    if (item.type !== 'file') return false;
+                    const nomeMin = item.name.toLowerCase();
+                    return nomeMin.endsWith('.html') || nomeMin.endsWith('.pdf');
+                })
+                .sort((a, b) => a.name.localeCompare(b.name, 'pt-BR'));
+        }
 
-                const itens = await response.json();
+        function renderizarLista() {
+            const arquivos = dadosPastas[pastaAtual] || [];
+            listContainer.innerHTML = '';
 
-                const arquivosFiltrados = itens
-                    .filter(item => {
-                        if (item.type !== 'file') return false;
-                        const nomeMin = item.name.toLowerCase();
-                        const ehHtmlOuPdf = nomeMin.endsWith('.html') || nomeMin.endsWith('.pdf');
-                        const naoEhIndex = nomeMin !== 'index.html';
-                        return ehHtmlOuPdf && naoEhIndex;
-                    })
-                    .sort((a, b) => a.name.localeCompare(b.name, 'pt-BR'));
+            if (arquivos.length === 0) {
+                listContainer.innerHTML = `<li class="status-msg">Nenhum arquivo encontrado em <strong>${pastaAtual}</strong>.</li>`;
+                return;
+            }
 
-                listContainer.innerHTML = '';
+            arquivos.forEach(file => {
+                const li = document.createElement('li');
+                li.className = 'file-item';
 
-                if (arquivosFiltrados.length === 0) {
-                    listContainer.innerHTML = '<li class="status-msg">Nenhum arquivo HTML ou PDF encontrado.</li>';
-                    return;
-                }
+                const ehPdf = file.name.toLowerCase().endsWith('.pdf');
+                const tagClass = ehPdf ? 'ext-pdf' : 'ext-html';
+                const tagTexto = ehPdf ? 'PDF' : 'HTML';
 
-                arquivosFiltrados.forEach(file => {
-                    const li = document.createElement('li');
-                    li.className = 'file-item';
+                const caminhoArquivo = `${encodeURIComponent(pastaAtual)}/${encodeURIComponent(file.name)}`;
 
-                    const caminhoArquivo = PASTA_ALVO 
-                        ? `${PASTA_ALVO}/${encodeURIComponent(file.name)}`
-                        : encodeURIComponent(file.name);
-
-                    li.innerHTML = `
+                li.innerHTML = `
+                    <div class="file-info">
+                        <span class="ext-tag ${tagClass}">${tagTexto}</span>
                         <a href="${caminhoArquivo}" target="_blank" class="file-name">${file.name}</a>
-                        <a href="${caminhoArquivo}" target="_blank" class="btn-open">Abrir</a>
-                    `;
+                    </div>
+                    <a href="${caminhoArquivo}" target="_blank" class="btn-open">Abrir</a>
+                `;
 
-                    listContainer.appendChild(li);
+                listContainer.appendChild(li);
+            });
+        }
+
+        async function inicializar() {
+            try {
+                const resultados = await Promise.all(PASTAS.map(p => buscarPasta(p)));
+
+                PASTAS.forEach((pasta, index) => {
+                    dadosPastas[pasta] = resultados[index];
+                    document.getElementById(`count-${pasta}`).textContent = resultados[index].length;
                 });
 
+                renderizarLista();
             } catch (erro) {
                 console.error(erro);
                 listContainer.innerHTML = `<li class="status-msg" style="color: #c0392b;">${erro.message}</li>`;
             }
         }
 
-        carregarArquivos();
+        tabButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                tabButtons.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                pastaAtual = btn.dataset.pasta;
+                renderizarLista();
+            });
+        });
+
+        inicializar();
     </script>
 
 </body>
