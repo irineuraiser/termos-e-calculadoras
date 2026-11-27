@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="h-full">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Termo de Responsabilidade</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: sans-serif;
+        }
+
+        /* Estilos de Impressão */
+        @media print {
+
+            /* Adicionado para logos */
+            .logo-print {
+                width: 4.4cm !important;
+                height: auto !important;
+                display: block !important; /* Garante visibilidade */
+            }
+
+            /* Esconde o formulário e o botão de impressão */
+            #input-form,
+            #print-button-container {
+                display: none !important;
+            }
+
+            /* Garante que o documento ocupe toda a área de impressão */
+            body {
+                margin: 0;
+                padding: 0;
+                background-color: #fff;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            #document-preview-container {
+                width: 100% !important;
+                height: 100% !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                box-shadow: none !important;
+                border: none !important;
+                position: absolute;
+                top: 0;
+                left: 0;
+            }
+
+            .document-content {
+                /* Zera o padding para usar toda a área da página */
+                padding: 0 !important;
+                line-height: 1.3;
+                font-family: 'Times New Roman', Times, serif;
+                color: #000;
+            }
+
+            h1,
+            h2 {
+                color: #000 !important;
+            }
+
+            /* Remove a borda da tabela na impressão */
+            table,
+            th,
+            td {
+                border: none !important;
+            }
+
+            /* Garante que os placeholders sejam preenchidos em negrito e maiúsculo na impressão */
+            .data-placeholder {
+                font-weight: bold !important;
+                text-transform: uppercase !important;
+                color: #000 !important;
+                background-color: transparent !important;
+            }
+
+            /* Diminui a fonte do parágrafo longo para 9pt na impressão */
+            #parágrafo-juridico {
+                font-size: 9pt !important;
+            }
+        }
+
+        /* Estilos dos Placeholders (Simplificado) */
+        .data-placeholder {
+            font-weight: 500;
+            /* Semi-negrito na tela */
+            padding: 2px 4px;
+            border-radius: 4px;
+            min-height: 20px;
+            display: inline-block;
+            line-height: 1.2;
+        }
+
+        .data-placeholder:empty::before {
+            content: attr(data-placeholder);
+            /* Texto do placeholder */
+            color: #9ca3af;
+            /* Cinza */
+            font-weight: 400;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-200 h-full p-4 md:p-8 flex items-center justify-center">
+
+    <div class="flex flex-col lg:flex-row w-full max-w-7xl h-full max-h-[90vh] bg-white rounded-lg shadow-2xl overflow-hidden">
+
+        <!-- Coluna do Formulário (Esquerda) -->
+        <aside id="input-form"
+            class="w-full lg:w-1/3 xl:w-1/4 bg-gray-50 border-r border-gray-200 p-6 overflow-y-auto">
+            <h2 class="text-xl font-bold text-gray-800 mb-6 border-b pb-2">Preencher Dados</h2>
+
+            <!-- Dados do Cliente -->
+            <section class="mb-6">
+                <h3 class="text-lg font-semibold text-gray-700 mb-4">Cliente (Vendedor)</h3>
+                <div class="space-y-4">
+                    <div>
+                        <label for="cliente_nome" class="block text-sm font-medium text-gray-600 mb-1">Nome
+                            Completo</label>
+                        <input type="text" id="cliente_nome" data-target="cliente_nome"
+                            class="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div>
+                        <label for="cliente_nacionalidade"
+                            class="block text-sm font-medium text-gray-600 mb-1">Nacionalidade</label>
+                        <input type="text" id="cliente_nacionalidade" data-target="cliente_nacionalidade"
+                            class="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div>
+                        <label for="cliente_cpf_cnpj"
+                            class="block text-sm font-medium text-gray-600 mb-1">CPF/CNPJ</label>
+                        <input type="text" id="cliente_cpf_cnpj" data-target="cliente_cpf_cnpj"
+                            class="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div>
+                        <label for="cliente_endereco"
+                            class="block text-sm font-medium text-gray-600 mb-1">Endereço</label>
+                        <input type="text" id="cliente_endereco" data-target="cliente_endereco"
+                            class="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div>
+                        <label for="cliente_bairro"
+                            class="block text-sm font-medium text-gray-600 mb-1">Bairro</label>
+                        <input type="text" id="cliente_bairro" data-target="cliente_bairro"
+                            class="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div>
+                        <label for="cliente_cidade"
+                            class="block text-sm font-medium text-gray-600 mb-1">Cidade</label>
+                        <input type="text" id="cliente_cidade" data-target="cliente_cidade"
+                            class="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div>
+                        <label for="cliente_uf" class="block text-sm font-medium text-gray-600 mb-1">UF</label>
+                        <input type="text" id="cliente_uf" data-target="cliente_uf" maxlength="2"
+                            class="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div>
+                        <label for="cliente_cep" class="block text-sm font-medium text-gray-600 mb-1">CEP</label>
+                        <input type="text" id="cliente_cep" data-target="cliente_cep"
+                            class="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                </div>
+            </section>
+
+            <!-- Dados do Veículo -->
+            <section>
+                <h3 class="text-lg font-semibold text-gray-700 mb-4">Veículo</h3>
+                <div class="space-y-4">
+                    <div>
+                        <label for="veiculo_marca"
+                            class="block text-sm font-medium text-gray-600 mb-1">Marca</label>
+                        <input type="text" id="veiculo_marca" data-target="veiculo_marca"
+                            class="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div>
+                        <label for="veiculo_modelo"
+                            class="block text-sm font-medium text-gray-600 mb-1">Modelo</label>
+                        <input type="text" id="veiculo_modelo" data-target="veiculo_modelo"
+                            class="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div>
+                        <label for="veiculo_ano_modelo"
+                            class="block text-sm font-medium text-gray-600 mb-1">Ano/Modelo</label>
+                        <input type="text" id="veiculo_ano_modelo" data-target="veiculo_ano_modelo"
+                            class="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                            placeholder="AAAA/AAAA">
+                    </div>
+                    <div>
+                        <label for="veiculo_renavam" class="block text-sm font-medium text-gray-600 mb-1">RENAVAM</label>
+                        <input type="text" id="veiculo_renavam" data-target="veiculo_renavam"
+                            class="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div>
+                        <label for="veiculo_chassi"
+                            class="block text-sm font-medium text-gray-600 mb-1">Chassi</label>
+                        <input type="text" id="veiculo_chassi" data-target="veiculo_chassi"
+                            class="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div>
+                        <label for="veiculo_placa"
+                            class="block text-sm font-medium text-gray-600 mb-1">Placa</label>
+                        <input type="text" id="veiculo_placa" data-target="veiculo_placa"
+                            class="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div>
+                        <label for="veiculo_municipio"
+                            class="block text-sm font-medium text-gray-600 mb-1">Município</label>
+                        <input type="text" id="veiculo_municipio" data-target="veiculo_municipio"
+                            class="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div>
+                        <label for="veiculo_estado"
+                            class="block text-sm font-medium text-gray-600 mb-1">Estado (UF)</label>
+                        <input type="text" id="veiculo_estado" data-target="veiculo_estado" maxlength="2"
+                            class="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                </div>
+            </section>
+        </aside>
+
+        <!-- Coluna do Documento (Direita) -->
+        <main id="document-preview-container"
+            class="w-full lg:w-2/3 xl:w-3/4 bg-white p-8 md:p-12 overflow-y-auto relative">
+
+            <!-- Botão de Impressão -->
+            <div id="print-button-container" class="w-full text-center mb-8">
+                <button onclick="triggerPrint()"
+                    class="w-full md:w-auto bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg shadow-md transition-all duration-300 ease-in-out transform hover:-translate-y-1">
+                    Clique para Pré-visualizar Impressão
+                </button>
+            </div>
+
+            <!-- Conteúdo do Documento -->
+            <div class="document-content max-w-2xl mx-auto bg-white text-gray-900">
+
+                <!-- INSERÇÃO DOS LOGOTIPOS (ESQUERDA E DIREITA) -->
+                <div class="w-full flex justify-between items-center mb-4">
+                    <img src="logo_stefanini.png" alt="Grupo Stefanini Logo" style="width: 5.5cm; height: auto;" class="logo-print">
+                    <img src="logo_multimarcas.jpg" alt="Stefanini Multimarcas Logo" style="width: 5.5cm; height: auto;" class="logo-print">
+                </div>
+                <!-- FIM DA INSERÇÃO DOS LOGOTIPOS -->
+
+
+                <!-- Alterado: mb-8 para mb-4 -->
+                <h1 class="text-2xl font-bold text-center mb-4 uppercase">Termo de Responsabilidade</h1>
+
+                <!-- Parágrafo de Identificação -->
+                <!-- Alterado: leading-relaxed para leading-normal, mb-6 para mb-3 -->
+                <p class="text-justify leading-normal mb-3">
+                    Eu,
+                    <span id="doc_cliente_nome" class="data-placeholder" data-placeholder="NOME COMPLETO"></span>,
+                    nacionalidade:
+                    <span id="doc_cliente_nacionalidade" class="data-placeholder"
+                        data-placeholder="NACIONALIDADE"></span>,
+                    CPF/CNPJ:
+                    <span id="doc_cliente_cpf_cnpj" class="data-placeholder" data-placeholder="000.000.000-00"></span>,
+                    domiciliado e residente:
+                    <span id="doc_cliente_endereco" class="data-placeholder"
+                        data-placeholder="RUA, Nº - COMPLEMENTO"></span>
+                    – Bairro:
+                    <span id="doc_cliente_bairro" class="data-placeholder" data-placeholder="BAIRRO"></span>,
+                    Cidade:
+                    <span id="doc_cliente_cidade" class="data-placeholder" data-placeholder="CIDADE"></span>
+                    – UF:
+                    <span id="doc_cliente_uf" class="data-placeholder" data-placeholder="UF"></span>,
+                    CEP:
+                    <span id="doc_cliente_cep" class="data-placeholder" data-placeholder="00000-000"></span>
+                </p>
+
+                <!-- Parágrafo de Declaração de Propriedade -->
+                <!-- Alterado: leading-relaxed para leading-normal, mb-6 para mb-3 -->
+                <p class="text-justify leading-normal mb-3">
+                    Declaro sob as penas do art. 299 (falsidade ideológica) do Código Penal, ser da minha única e
+                    exclusiva propriedade, o veículo abaixo discriminado:
+                </p>
+
+                <!-- Tabela de Dados do Veículo (Compactada) -->
+                <!-- Alterado: mb-6 para mb-3 -->
+                <div class="border border-gray-300 rounded-lg overflow-hidden mb-3">
+                    <table class="w-full text-sm">
+                        <tbody class="divide-y divide-gray-200">
+                            <!-- Linha 1 -->
+                            <tr class="divide-x divide-gray-200">
+                                <td class="p-2">
+                                    <strong class="block text-gray-500 text-xs">Marca</strong>
+                                    <span id="doc_veiculo_marca" class="data-placeholder"
+                                        data-placeholder="MARCA"></span>
+                                </td>
+                                <td class="p-2">
+                                    <strong class="block text-gray-500 text-xs">Modelo</strong>
+                                    <span id="doc_veiculo_modelo" class="data-placeholder"
+                                        data-placeholder="MODELO"></span>
+                                </td>
+                                <td class="p-2">
+                                    <strong class="block text-gray-500 text-xs">Ano/Modelo</strong>
+                                    <span id="doc_veiculo_ano_modelo" class="data-placeholder"
+                                        data-placeholder="AAAA/AAAA"></span>
+                                </td>
+                                <td class="p-2">
+                                    <strong class="block text-gray-500 text-xs">RENAVAM</strong>
+                                    <span id="doc_veiculo_renavam" class="data-placeholder" data-placeholder="Nº RENAVAM"></span>
+                                </td>
+                            </tr>
+                            <!-- Linha 2 -->
+                            <tr class="divide-x divide-gray-200 bg-gray-50">
+                                <td class="p-2">
+                                    <strong class="block text-gray-500 text-xs">Chassi</strong>
+                                    <span id="doc_veiculo_chassi" class="data-placeholder"
+                                        data-placeholder="Nº CHASSI"></span>
+                                </td>
+                                <td class="p-2">
+                                    <strong class="block text-gray-500 text-xs">Placa</strong>
+                                    <span id="doc_veiculo_placa" class="data-placeholder"
+                                        data-placeholder="AAA-0A00"></span>
+                                </td>
+                                <td class="p-2">
+                                    <strong class="block text-gray-500 text-xs">Município</strong>
+                                    <span id="doc_veiculo_municipio" class="data-placeholder"
+                                        data-placeholder="MUNICÍPIO"></span>
+                                </td>
+                                <td class="p-2">
+                                    <strong class="block text-gray-500 text-xs">Estado</strong>
+                                    <span id="doc_veiculo_estado" class="data-placeholder" data-placeholder="UF"></span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+
+                <!-- Parágrafo Jurídico Principal -->
+                <!-- Alterado: leading-relaxed para leading-normal, mb-6 para mb-3 -->
+                <p class="text-justify leading-normal mb-3 text-xs" id="paragrafo-juridico">
+                    Sob as penas do mesmo artigo, declaro para os devidos fins e efeitos, que o veículo de minha
+                    propriedade e acima descrito está livre e desembaraçado de todos e quaisquer ônus, judiciais ou
+                    extrajudiciais. Declaro ainda que serão de minha inteira responsabilidade quaisquer multas e
+                    obrigações resultantes de infrações, acidentes de trânsito ou fiscais, que forem efetuadas até a
+                    data de assinatura do presente termo, mesmo que ainda não constantes dos registros do DETRAN -
+                    Departamento Nacional de Trânsito, e/ou outros órgãos oficiais de trânsito, e que tenham sido
+                    incorridos em data anterior á assinatura do presente termo, e quando tratar-se de veículo importado,
+                    por eventual direito de regresso, se sobre o mesmo recair qualquer ônus ou dívida que possa
+                    inviabilizar a sua transferência ao adquirente. Além disso, declaro expressamente que o veículo em
+                    questão não é objeto de perda total, não tendo se envolvido em qualquer tipo de sinistro que possa
+                    dar causa ou ensejo a esse evento. Assumo ainda, inteira responsabilidade pelo pagamento do ônus
+                    acima, me comprometendo a honrá-lo no prazo máximo de 10 (dez) dias, a contar da data em que me for
+                    apresentado, sob pena de pagar não só os juros mora de lei, como também multa contratual de 10% (dez
+                    por cento) e honorários advocatícios de 20% (vinte por cento) sobre os valores cobrados. Fica claro
+                    que havendo necessidade de cobrança em decorrência de quaisquer danos ocasionados por informação
+                    omitida, autorizo neste ato e por este instrumento promover a cobrança através de instituição
+                    financeira mediante a emissão de boleto bancário contra a minha pessoa. Por outro lado, se a
+                    cobrança ocorrer pela via judicial, fica estabelecido que a dívida resultante da requerida cobrança é
+                    considerada dívida líquida e certa para fins legais. O presente termo é firmado por minha livre e
+                    espontânea vontade.
+                </p>
+
+                <!-- Data e Local (Manual) -->
+                <!-- Alterado: mt-12 para mt-6, mb-16 para mb-8 -->
+                <div class="mt-6 mb-8">
+                    <p>Local e Data: __________________________________________________</p>
+                </div>
+
+                <!-- Assinatura -->
+                <!-- Alterado: mb-8 para mb-4 -->
+                <div class="mb-4">
+                    <p class="text-center">_________________________________________</p>
+                    <p class="text-center font-semibold">
+                        Assinatura: <span id="doc_assinatura_nome" class="data-placeholder"
+                            data-placeholder="NOME DO VENDEDOR"></span>
+                    </p>
+                    <p class="text-center text-sm italic mt-1">(Reconhecer firma por autenticidade em cartório)</p>
+                </div>
+
+                <!-- Dados de Entrega (Manual) -->
+                <!-- Alterado: mt-8 para mt-4 -->
+                <div class="border-t border-gray-300 pt-4 mt-4 text-sm text-gray-700">
+                    <p>
+                        Entrega definitiva na concessionária: Data ____/____/________&nbsp; Hora _____:_____&nbsp; Km
+                        __________
+                    </p>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Função para acionar a impressão
+        function triggerPrint() {
+            window.print();
+        }
+
+        // Função para atualizar o documento com os dados do formulário
+        function updateDocument(inputId, targetId) {
+            const inputElement = document.getElementById(inputId);
+            const targetElement = document.getElementById(targetId);
+
+            if (inputElement && targetElement) {
+                // Converte para maiúsculo
+                const value = inputElement.value.toUpperCase();
+                targetElement.textContent = value;
+            }
+        }
+
+        // Preenche os dados do documento quando a página carrega
+        window.onload = function () {
+            // Seleciona todos os inputs que têm o atributo 'data-target'
+            const inputs = document.querySelectorAll('#input-form input[data-target]');
+
+            inputs.forEach(input => {
+                const targetId = `doc_${input.getAttribute('data-target')}`;
+
+                // Adiciona o listener de 'input' (digitação em tempo real)
+                input.addEventListener('input', () => {
+                    updateDocument(input.id, targetId);
+
+                    // Caso especial: Preencher o nome na assinatura
+                    if (input.id === 'cliente_nome') {
+                        updateDocument(input.id, 'doc_assinatura_nome');
+                    }
+                });
+
+                // Atualiza o documento com os valores iniciais (que estarão vazios)
+                updateDocument(input.id, targetId);
+                if (input.id === 'cliente_nome') {
+                    updateDocument(input.id, 'doc_assinatura_nome');
+                }
+            });
+        };
+    </script>
+
+</body>
+
+</html>
